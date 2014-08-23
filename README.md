@@ -7,8 +7,6 @@ It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLit
 
 With ext::function class, it's also easy to write the sqlite3's functions and aggregations.
 
-You should be able to start using sqlite3pp by reading the usage section.
-
 # Usage
 
 ## database
@@ -282,3 +280,4 @@ sqlite3pp::query qry(db, "SELECT aggr0(id), aggr1(type_id), aggr2(name), aggr3(i
 * http://www.ideathinking.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html (Korean)
 * http://www.ideathinking.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html (Korean)
 * http://www.ideathinking.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html (Korean)
+* https://code.google.com/p/sqlite3pp/

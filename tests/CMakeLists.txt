@@ -1,0 +1,30 @@
+# vim: set ts=4 sw=4 sts=4 et:
+
+INCLUDE_DIRECTORIES (${CMAKE_SOURCE_DIR}/src)
+
+ADD_EXECUTABLE (testaggregate testaggregate.cpp)
+ADD_EXECUTABLE (testattach testattach.cpp)
+ADD_EXECUTABLE (testcallback testcallback.cpp)
+ADD_EXECUTABLE (testdisconnect testdisconnect.cpp)
+ADD_EXECUTABLE (testfunction testfunction.cpp)
+ADD_EXECUTABLE (testinsertall testinsertall.cpp)
+ADD_EXECUTABLE (testinsert testinsert.cpp)
+ADD_EXECUTABLE (testselect testselect.cpp)
+
+ADD_DEPENDENCIES (testaggregate sqlite3pp)
+ADD_DEPENDENCIES (testattach sqlite3pp)
+ADD_DEPENDENCIES (testcallback sqlite3pp)
+ADD_DEPENDENCIES (testdisconnect sqlite3pp)
+ADD_DEPENDENCIES (testfunction sqlite3pp)
+ADD_DEPENDENCIES (testinsertall sqlite3pp)
+ADD_DEPENDENCIES (testinsert sqlite3pp)
+ADD_DEPENDENCIES (testselect sqlite3pp)
+
+TARGET_LINK_LIBRARIES (testaggregate sqlite3pp)
+TARGET_LINK_LIBRARIES (testattach sqlite3pp)
+TARGET_LINK_LIBRARIES (testcallback sqlite3pp)
+TARGET_LINK_LIBRARIES (testdisconnect sqlite3pp)
+TARGET_LINK_LIBRARIES (testfunction sqlite3pp)
+TARGET_LINK_LIBRARIES (testinsertall sqlite3pp)
+TARGET_LINK_LIBRARIES (testinsert sqlite3pp)
+TARGET_LINK_LIBRARIES (testselect sqlite3pp)

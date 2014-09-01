@@ -35,7 +35,7 @@ namespace sqlite3pp
   namespace ext
   {
 
-    class context : boost::noncopyable
+    class SQLITE3PP_Export context : boost::noncopyable
     {
      public:
       explicit context(sqlite3_context* ctx, int nargs = 0, sqlite3_value** values = 0);
@@ -135,7 +135,7 @@ namespace sqlite3pp
     }
 
 
-    class function : boost::noncopyable
+    class SQLITE3PP_Export function : boost::noncopyable
     {
      public:
       typedef boost::function<void (context&)> function_handler;
@@ -314,7 +314,7 @@ namespace sqlite3pp
 
     }
 
-    class aggregate : boost::noncopyable
+    class SQLITE3PP_Export aggregate : boost::noncopyable
     {
      public:
       typedef boost::function<void (context&)> function_handler;

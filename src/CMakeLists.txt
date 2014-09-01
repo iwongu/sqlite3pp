@@ -8,6 +8,10 @@ SET (SQLITE3PP_SRCS
 ADD_LIBRARY (sqlite3pp SHARED ${SQLITE3PP_SRCS})
 TARGET_LINK_LIBRARIES (sqlite3pp sqlite3)
 
+SET_TARGET_PROPERTIES (sqlite3pp PROPERTIES
+                       SOVERSION ${SQLITE3PP_MAJOR}
+                       VERSION ${SQLITE3PP_MAJOR}.${SQLITE3PP_MINOR}.${SQLITE3PP_MICRO})
+
 # at build time you may specify the cmake variable LIB_SUFFIX to handle
 # 64-bit systems which use 'lib64'
 INSTALL (TARGETS sqlite3pp

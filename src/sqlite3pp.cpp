@@ -74,7 +74,7 @@ namespace sqlite3pp
     if (dbname) {
       int rc = connect(dbname);
       if (rc != SQLITE_OK)
-	throw database_error("can't connect database");
+        throw database_error("can't connect database");
     }
   }
 
@@ -117,6 +117,18 @@ namespace sqlite3pp
   {
     return executef("DETACH '%s'", name);
   }
+
+#if HAVE_SQLCIPHER == 1
+  int database::key(const void* key, int len)
+  {
+    return sqlite3_key(db_, key, len);
+  }
+
+  int database::rekey(const void* key, int len)
+  {
+    return sqlite3_rekey(db_, key, len);
+  }
+#endif /* HAVE_SQLCIPHER == 1*/
 
   void database::set_busy_handler(busy_handler h)
   {
@@ -189,7 +201,7 @@ namespace sqlite3pp
     if (stmt) {
       int rc = prepare(stmt);
       if (rc != SQLITE_OK)
-	throw database_error(db_);
+        throw database_error(db_);
     }
   }
 
@@ -527,3 +539,4 @@ namespace sqlite3pp
 
 
 }
+// vim: set ts=2 sw=2 sts=2 et:

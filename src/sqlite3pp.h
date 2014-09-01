@@ -27,7 +27,13 @@
 
 #include <string>
 #include <stdexcept>
-#include <sqlite3.h>
+
+#if HAVE_SQLCIPHER == 1
+# include <sqlcipher/sqlite3.h>
+#else /* HAVE_SQLCIPHER == 0 */
+# include <sqlite3.h>
+#endif /* HAVE_SQLCIPHER == 1*/
+
 #include <boost/utility.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -70,6 +76,11 @@ namespace sqlite3pp
 
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
+
+#if HAVE_SQLCIPHER == 1
+    int key(const void* key, int len);
+    int rekey(const void* key, int len);
+#endif /* HAVE_SQLCIPHER == 1*/
 
     long long int last_insert_rowid() const;
 
@@ -311,3 +322,4 @@ namespace sqlite3pp
 } // namespace sqlite3pp
 
 #endif
+// vim: set ts=2 sw=2 sts=2 et:

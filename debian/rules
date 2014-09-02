@@ -1,0 +1,90 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+DEB_HOST_MULTIARCH   ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+BUILDDIR_sqlite3pp   := $(CURDIR)/debian/build-sqlite3pp
+BUILDDIR_sqlcipherpp := $(CURDIR)/debian/build-sqlcipherpp
+CMAKE_OPTS           := \
+	-DCMAKE_BUILD_TYPE= Release \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) \
+	-DENABLE_TESTS=OFF
+
+DESTDIR              := $(CURDIR)/debian/tmp
+
+clean:
+	dh_testdir
+	rm -f build-stamp
+	dh_clean
+	rm -rf $(CURDIR)/debian/build-*
+
+configure.sqlite3pp:
+	mkdir -p $(BUILDDIR_sqlite3pp)
+	cd $(BUILDDIR_sqlite3pp) && cmake $(CMAKE_OPTS) $(CURDIR)
+
+configure.sqlcipherpp:
+	mkdir -p $(BUILDDIR_sqlcipherpp)
+	cd $(BUILDDIR_sqlcipherpp) && cmake $(CMAKE_OPTS) -DENABLE_SQLCIPHER=ON \
+		$(CURDIR)
+
+build-arch.%: configure.%
+	dh_testdir
+	$(MAKE) -C $(BUILDDIR_$*)
+
+build-arch: build-arch.sqlite3pp build-arch.sqlcipherpp
+	dh_testdir
+	touch $@
+
+build-indep:
+
+build: build-indep build-arch
+	dh_testdir
+	touch $@
+
+install: $(addprefix $(CURDIR)/debian/lib, \
+			sqlcipherpp1.install \
+			sqlcipherpp-dev.install \
+			sqlite3pp1.install \
+			sqlite3pp-dev.install)
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+	$(MAKE) -C $(BUILDDIR_sqlite3pp) install/strip DESTDIR=$(DESTDIR)
+	$(MAKE) -C $(BUILDDIR_sqlcipherpp) install/strip DESTDIR=$(DESTDIR)
+
+binary-indep:
+
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_lintian -a
+	dh_install -a --sourcedir=$(DESTDIR)
+	dh_installman -a
+	dh_installdocs -a
+	dh_installchangelogs -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+
+binary: binary-indep binary-arch
+
+%.install: %.install.in
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/' $< > $@
+
+.PHONY: build clean binary-indep binary-arch binary install

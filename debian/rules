@@ -1,66 +1,34 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-DEB_HOST_MULTIARCH   ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+DEB_HOST_MULTIARCH     ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-BUILDDIR_sqlite3pp   := $(CURDIR)/debian/build-sqlite3pp
-BUILDDIR_sqlcipherpp := $(CURDIR)/debian/build-sqlcipherpp
-CMAKE_OPTS           := \
-	-DCMAKE_BUILD_TYPE= Release \
+BUILDDIR_sqlite3pp     := $(CURDIR)/debian/build-sqlite3pp
+BUILDDIR_sqlcipherpp   := $(CURDIR)/debian/build-sqlcipherpp
+CMAKE_OPTS             := \
+	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_PREFIX=/usr \
 	-DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) \
 	-DENABLE_TESTS=OFF
 
-DESTDIR              := $(CURDIR)/debian/tmp
+CMAKE_OPTS_sqlite3pp   := $(CMAKE_OPTS)
+CMAKE_OPTS_sqlcipherpp := $(CMAKE_OPTS) -DENABLE_SQLCIPHER=ON
 
-clean:
-	dh_testdir
-	rm -f build-stamp
-	dh_clean
-	rm -rf $(CURDIR)/debian/build-*
+DESTDIR                := $(CURDIR)/debian/tmp
 
-configure.sqlite3pp:
-	mkdir -p $(BUILDDIR_sqlite3pp)
-	cd $(BUILDDIR_sqlite3pp) && cmake $(CMAKE_OPTS) $(CURDIR)
+build: build-indep build-arch
+binary: binary-indep binary-arch
 
-configure.sqlcipherpp:
-	mkdir -p $(BUILDDIR_sqlcipherpp)
-	cd $(BUILDDIR_sqlcipherpp) && cmake $(CMAKE_OPTS) -DENABLE_SQLCIPHER=ON \
-		$(CURDIR)
-
-build-arch.%: configure.%
-	dh_testdir
-	$(MAKE) -C $(BUILDDIR_$*)
-
-build-arch: build-arch.sqlite3pp build-arch.sqlcipherpp
+build-arch: build-arch-stamp
+	
+build-arch-stamp: build-arch.sqlite3pp build-arch.sqlcipherpp
 	dh_testdir
 	touch $@
 
 build-indep:
-
-build: build-indep build-arch
-	dh_testdir
-	touch $@
-
-install: $(addprefix $(CURDIR)/debian/lib, \
-			sqlcipherpp1.install \
-			sqlcipherpp-dev.install \
-			sqlite3pp1.install \
-			sqlite3pp-dev.install)
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-	$(MAKE) -C $(BUILDDIR_sqlite3pp) install/strip DESTDIR=$(DESTDIR)
-	$(MAKE) -C $(BUILDDIR_sqlcipherpp) install/strip DESTDIR=$(DESTDIR)
 
 binary-indep:
 
@@ -81,8 +49,30 @@ binary-arch: install
 	dh_md5sums -a
 	dh_builddeb -a
 
+pre-install-hook:
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
 
-binary: binary-indep binary-arch
+install: install.sqlite3pp install.sqlcipherpp
+
+clean:
+	dh_testdir
+	rm -f build-arch-stamp
+	dh_clean
+	rm -rf $(CURDIR)/debian/build-*
+
+configure.%:
+	mkdir -p $(BUILDDIR_$*)
+	cd $(BUILDDIR_$*) && cmake $(CMAKE_OPTS_$*) $(CURDIR)
+
+build-arch.%: configure.%
+	dh_testdir
+	$(MAKE) -C $(BUILDDIR_$*)
+
+install.%: pre-install-hook $(CURDIR)/debian/lib%1.install $(CURDIR)/debian/lib%-dev.install
+	$(MAKE) -C $(BUILDDIR_$*) install/strip DESTDIR=$(DESTDIR)
 
 %.install: %.install.in
 	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/' $< > $@

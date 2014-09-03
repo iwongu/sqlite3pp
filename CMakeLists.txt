@@ -9,6 +9,7 @@ SET (SQLITE3PP_MICRO 1)
 
 OPTION (ENABLE_SQLCIPHER "Enable building with sqlcipher" OFF)
 OPTION (ENABLE_TESTS "Enable building tests" ON)
+OPTION (ENABLE_SO_VERSION "Enable shared library version" ON)
 
 IF (ENABLE_SQLCIPHER)
     ADD_DEFINITIONS (-DHAVE_SQLCIPHER=1 -DSQLITE_HAS_CODEC)

@@ -20,6 +20,7 @@ set -e
 
 case "$1" in
     configure)
+	ldconfig
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

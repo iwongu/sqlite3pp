@@ -22,5 +22,5 @@ INSTALL (TARGETS ${SQLITE3PP_NAME}
 		 LIBRARY DESTINATION lib${LIB_SUFFIX}
 		 ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
-INSTALL (FILES sqlite3ppext.h sqlite3pp.h
+INSTALL (FILES sqlite3ppext.h sqlite3pp.h sqlite3pp_export.h
          DESTINATION include/${SQLITE3PP_NAME})

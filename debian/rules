@@ -71,10 +71,12 @@ build-arch.%: configure.%
 	dh_testdir
 	$(MAKE) -C $(BUILDDIR_$*)
 
-install.%: pre-install-hook $(CURDIR)/debian/lib%1.install $(CURDIR)/debian/lib%-dev.install
+install.%: pre-install-hook $(CURDIR)/debian/lib%1.install \
+			$(CURDIR)/debian/lib%-dev.install
 	$(MAKE) -C $(BUILDDIR_$*) install/strip DESTDIR=$(DESTDIR)
 
 %.install: %.install.in
 	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/' $< > $@
 
-.PHONY: build clean binary-indep binary-arch binary install
+.PHONY: build build-arch build-indep binary binary-arch binary-indep \
+	install clean pre-install-hook

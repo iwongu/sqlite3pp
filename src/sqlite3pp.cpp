@@ -165,6 +165,11 @@ namespace sqlite3pp
     return sqlite3_last_insert_rowid(db_);
   }
 
+  int database::changes() const
+  {
+    return sqlite3_changes(db_);
+  }
+
   int database::error_code() const
   {
     return sqlite3_errcode(db_);

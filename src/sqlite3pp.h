@@ -84,6 +84,8 @@ namespace sqlite3pp
 
     long long int last_insert_rowid() const;
 
+    int changes() const;
+
     int error_code() const;
     char const* error_msg() const;
 

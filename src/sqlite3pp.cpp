@@ -74,7 +74,7 @@ namespace sqlite3pp
     if (dbname) {
       int rc = connect(dbname);
       if (rc != SQLITE_OK)
-	throw database_error("can't connect database");
+        throw database_error("can't connect database");
     }
   }
 
@@ -189,7 +189,7 @@ namespace sqlite3pp
     if (stmt) {
       int rc = prepare(stmt);
       if (rc != SQLITE_OK)
-	throw database_error(db_);
+        throw database_error(db_);
     }
   }
 

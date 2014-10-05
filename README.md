@@ -10,34 +10,37 @@ With ext::function class, it's also easy to write the sqlite3's functions and ag
 # Usage
 
 ## database
-```
+```cpp
 sqlite3pp::database db("test.db");
 db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
 ```
 
 ## command
-```
-sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
+```cpp
+sqlite3pp::command cmd(
+  db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
 cmd.binder() << "Mike" << "555-1234";
 cmd.execute();
 ```
 
-```
+```cpp
 sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
 cmd.bind(1, "Mike");
 cmd.bind(2, "555-1234");
 cmd.execute();
 ```
 
-```
-sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
+```cpp
+sqlite3pp::command cmd(
+  db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
 cmd.bind(100, "Mike");
 cmd.bind(101, "555-1234");
 cmd.execute();
 ```
 
-```
-sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
+```cpp
+sqlite3pp::command cmd(
+  db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
 cmd.bind(":user", "Mike");
 cmd.bind(":phone", "555-1234");
 cmd.execute();
@@ -45,10 +48,11 @@ cmd.execute();
 
 ## transaction
 
-```
+```cpp
 sqlite3pp::transaction xct(db);
 {
-  sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
+  sqlite3pp::command cmd(
+    db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
   cmd.bind(":user", "Mike");
   cmd.bind(":phone", "555-1234");
   cmd.execute();
@@ -58,7 +62,7 @@ xct.rollback();
 
 ## query
 
-```
+```cpp
 sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
 
 for (int i = 0; i < qry.column_count(); ++i) {
@@ -66,7 +70,7 @@ for (int i = 0; i < qry.column_count(); ++i) {
 }
 ```
 
-```
+```cpp
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
   for (int j = 0; j < qry.column_count(); ++j) {
     cout << (*i).get<char const*>(j) << "\t";
@@ -75,16 +79,17 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 }
 ```
 
-```
+```cpp
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
   int id;
   char const* name, *phone;
-  boost::tie(id, name, phone) = (*i).get_columns<int, char const*, char const*>(0, 1, 2);
+  boost::tie(id, name, phone) =
+    (*i).get_columns<int, char const*, char const*>(0, 1, 2);
   cout << id << "\t" << name << "\t" << phone << endl;
 }
 ```
 
-```
+```cpp
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
   int id;
   string name, phone;
@@ -95,16 +100,18 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 
 ## attach
 
-```
+```cpp
 sqlite3pp::database db("foods.db");
 db.attach("test.db", "test");
 
-sqlite3pp::query qry(db, "SELECT epi.* FROM episodes epi, test.contacts con WHERE epi.id = con.id");
+sqlite3pp::query qry(
+  db,
+  "SELECT epi.* FROM episodes epi, test.contacts con WHERE epi.id = con.id");
 ```
 
 ## callback
 
-```
+```cpp
 struct rollback_handler
 {
   void operator()() {
@@ -120,8 +127,9 @@ db.set_commit_handler((cout << constant("handle_commit\n"), 0));
 db.set_rollback_handler(rollback_handler());
 ```
 
-```
-int handle_authorize(int evcode, char const* p1, char const* p2, char const* dbname, char const* tvname) {
+```cpp
+int handle_authorize(int evcode, char const* p1, char const* p2,
+                     char const* dbname, char const* tvname) {
   cout << "handle_authorize(" << evcode << ")" << endl;
   return 0;
 }
@@ -129,13 +137,15 @@ int handle_authorize(int evcode, char const* p1, char const* p2, char const* dbn
 db.set_authorize_handler(&handle_authorize);
 ```
 
-```
+```cpp
 struct handler
 {
   handler() : cnt_(0) {}
 
-  void handle_update(int opcode, char const* dbname, char const* tablename, int64_t rowid) {
-    cout << "handle_update(" << opcode << ", " << dbname << ", " << tablename << ", " << rowid << ") - " << cnt_++ << endl;
+  void handle_update(int opcode, char const* dbname,
+                     char const* tablename, int64_t rowid) {
+    cout << "handle_update(" << opcode << ", " << dbname << ", "
+         << tablename << ", " << rowid << ") - " << cnt_++ << endl;
   }
   int cnt_;
 };
@@ -145,7 +155,7 @@ db.set_update_handler(boost::bind(&handler::handle_update, &h, _1, _2, _3, _4));
 
 ## function
 
-```
+```cpp
 int test0()
 {
   return 100;
@@ -157,7 +167,7 @@ sqlite3pp::ext::function func(db);
 func.create<int ()>("test0", &test0);
 ```
 
-```
+```cpp
 void test1(sqlite3pp::ext::context& ctx)
 {
   ctx.result(200);
@@ -179,13 +189,13 @@ func.create("test2", &test2, 1);
 func.create("test3", &test3, 1);
 ```
 
-```
+```cpp
 using namespace boost::lambda;
 
 func.create<int ()>("test4", constant(500));
 ```
 
-```
+```cpp
 string test5(string const& value)
 {
   return value;
@@ -202,13 +212,16 @@ func.create<int (int)>("test5", _1 + constant(1000));
 func.create<string (string, string, string)>("test6", &test6);
 ```
 
-```
-sqlite3pp::query qry(db, "SELECT test0(), test1(), test2('x'), test3('y'), test4(), test5(10), test6('a', 'b', 'c')");
+```cpp
+sqlite3pp::query qry(
+  db,
+  "SELECT test0(), test1(), test2('x'), test3('y'), test4(), test5(10), "
+  "test6('a', 'b', 'c')");
 ```
 
 ## aggregate
 
-```
+```cpp
 void step(sqlite3pp::ext::context& c)
 {
   int* sum = (int*) c.aggregate_data(sizeof(int));
@@ -227,7 +240,7 @@ sqlite3pp::ext::aggregate aggr(db);
 aggr.create("aggr0", &step, &finalize);
 ```
 
-```
+```cpp
 struct mycnt
 {
   void step() {
@@ -242,7 +255,7 @@ struct mycnt
 aggr.create<mycnt>("aggr1");
 ```
 
-```
+```cpp
 struct strcnt
 {
   void step(string const& s) {
@@ -269,8 +282,11 @@ aggr.create<strcnt, string>("aggr2");
 aggr.create<plussum, int, int>("aggr3");
 ```
 
-```
-sqlite3pp::query qry(db, "SELECT aggr0(id), aggr1(type_id), aggr2(name), aggr3(id, type_id) FROM foods");
+```cpp
+sqlite3pp::query qry(
+  db,
+  "SELECT aggr0(id), aggr1(type_id), aggr2(name), aggr3(id, type_id) "
+  "FROM foods");
 ```
 
 

@@ -1,0 +1,2 @@
+usr/include/sqlite3pp/*.h
+usr/lib/@DEB_HOST_MULTIARCH@/libsqlite3pp.so

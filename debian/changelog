@@ -1,0 +1,23 @@
+sqlite3pp (1.0.1-4) unstable; urgency=low
+
+  * Add sqlite3_changes wrapper.
+
+ -- Like Ma <likemartinma@gmail.com>  Thu, 18 Sep 2014 19:11:46 +0800
+
+sqlite3pp (1.0.1-3) precise; urgency=low
+
+  * Install sqlite3pp_export.h into user include directory.
+
+ -- Like Ma <likemartinma@gmail.com>  Fri, 05 Sep 2014 16:10:35 +0800
+
+sqlite3pp (1.0.1-2) unstable; urgency=low
+
+  * Call ldconfig when configuring deb.
+
+ -- Like Ma <likemartinma@gmail.com>  Wed, 03 Sep 2014 14:12:58 +0800
+
+sqlite3pp (1.0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Like Ma <likemartinma@gmail.com>  Mon, 01 Sep 2014 22:29:20 +0800

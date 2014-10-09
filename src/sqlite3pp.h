@@ -27,11 +27,18 @@
 
 #include <string>
 #include <stdexcept>
-#include <sqlite3.h>
+
+#if HAVE_SQLCIPHER == 1
+# include <sqlcipher/sqlite3.h>
+#else /* HAVE_SQLCIPHER == 0 */
+# include <sqlite3.h>
+#endif /* HAVE_SQLCIPHER == 1*/
+
 #include <boost/utility.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/function.hpp>
+#include "sqlite3pp_export.h"
 
 namespace sqlite3pp
 {
@@ -41,12 +48,12 @@ namespace sqlite3pp
     class aggregate;
   }
 
-  class null_type {};
-  extern null_type ignore;
+  class SQLITE3PP_Export null_type {};
+  SQLITE3PP_Export extern null_type ignore;
 
-  int enable_shared_cache(bool fenable);
+  SQLITE3PP_Export int enable_shared_cache(bool fenable);
 
-  class database : boost::noncopyable
+  class SQLITE3PP_Export database : boost::noncopyable
   {
     friend class statement;
     friend class database_error;
@@ -70,7 +77,14 @@ namespace sqlite3pp
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
 
+#if HAVE_SQLCIPHER == 1
+    int key(const void* key, int len);
+    int rekey(const void* key, int len);
+#endif /* HAVE_SQLCIPHER == 1*/
+
     long long int last_insert_rowid() const;
+
+    int changes() const;
 
     int error_code() const;
     char const* error_msg() const;
@@ -96,14 +110,14 @@ namespace sqlite3pp
     authorize_handler ah_;
   };
 
-  class database_error : public std::runtime_error
+  class SQLITE3PP_Export database_error : public std::runtime_error
   {
    public:
     explicit database_error(char const* msg);
     explicit database_error(database& db);
   };
 
-  class statement : boost::noncopyable
+  class SQLITE3PP_Export statement : boost::noncopyable
   {
    public:
     int prepare(char const* stmt);
@@ -141,10 +155,10 @@ namespace sqlite3pp
     char const* tail_;
   };
 
-  class command : public statement
+  class SQLITE3PP_Export command : public statement
   {
    public:
-    class bindstream
+    class SQLITE3PP_Export bindstream
     {
      public:
       bindstream(command& cmd, int idx);
@@ -172,13 +186,13 @@ namespace sqlite3pp
     int execute_all();
   };
 
-  class query : public statement
+  class SQLITE3PP_Export query : public statement
   {
    public:
-    class rows
+    class SQLITE3PP_Export rows
     {
      public:
-      class getstream
+      class SQLITE3PP_Export getstream
       {
        public:
         getstream(rows* rws, int idx);
@@ -261,7 +275,7 @@ namespace sqlite3pp
       sqlite3_stmt* stmt_;
     };
 
-    class query_iterator
+    class SQLITE3PP_Export query_iterator
 	: public boost::iterator_facade<query_iterator, rows, boost::single_pass_traversal_tag, rows>
     {
      public:
@@ -293,7 +307,7 @@ namespace sqlite3pp
     iterator end();
   };
 
-  class transaction : boost::noncopyable
+  class SQLITE3PP_Export transaction : boost::noncopyable
   {
    public:
     explicit transaction(database& db, bool fcommit = false, bool freserve = false);
@@ -310,3 +324,4 @@ namespace sqlite3pp
 } // namespace sqlite3pp
 
 #endif
+// vim: set ts=2 sw=2 sts=2 et:

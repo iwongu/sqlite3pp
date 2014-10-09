@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+DEB_HOST_MULTIARCH     ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+BUILDDIR_sqlite3pp     := $(CURDIR)/debian/build-sqlite3pp
+BUILDDIR_sqlcipherpp   := $(CURDIR)/debian/build-sqlcipherpp
+CMAKE_OPTS             := \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) \
+	-DENABLE_TESTS=OFF
+
+CMAKE_OPTS_sqlite3pp   := $(CMAKE_OPTS)
+CMAKE_OPTS_sqlcipherpp := $(CMAKE_OPTS) -DENABLE_SQLCIPHER=ON
+
+DESTDIR                := $(CURDIR)/debian/tmp
+
+build: build-indep build-arch
+binary: binary-indep binary-arch
+
+build-arch: build-arch-stamp
+	
+build-arch-stamp: build-arch.sqlite3pp build-arch.sqlcipherpp
+	dh_testdir
+	touch $@
+
+build-indep:
+
+binary-indep:
+
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_lintian -a
+	dh_install -a --sourcedir=$(DESTDIR)
+	dh_installman -a
+	dh_installdocs -a
+	dh_installchangelogs -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+pre-install-hook:
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+install: install.sqlite3pp install.sqlcipherpp
+
+clean:
+	dh_testdir
+	rm -f build-arch-stamp
+	dh_clean
+	rm -rf $(CURDIR)/debian/build-*
+
+configure.%:
+	mkdir -p $(BUILDDIR_$*)
+	cd $(BUILDDIR_$*) && cmake $(CMAKE_OPTS_$*) $(CURDIR)
+
+build-arch.%: configure.%
+	dh_testdir
+	$(MAKE) -C $(BUILDDIR_$*)
+
+install.%: pre-install-hook $(CURDIR)/debian/lib%1.install \
+			$(CURDIR)/debian/lib%-dev.install
+	$(MAKE) -C $(BUILDDIR_$*) install/strip DESTDIR=$(DESTDIR)
+
+%.install: %.install.in
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/' $< > $@
+
+.PHONY: build build-arch build-indep binary binary-arch binary-indep \
+	install clean pre-install-hook

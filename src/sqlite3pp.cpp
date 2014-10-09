@@ -118,6 +118,18 @@ namespace sqlite3pp
     return executef("DETACH '%s'", name);
   }
 
+#if HAVE_SQLCIPHER == 1
+  int database::key(const void* key, int len)
+  {
+    return sqlite3_key(db_, key, len);
+  }
+
+  int database::rekey(const void* key, int len)
+  {
+    return sqlite3_rekey(db_, key, len);
+  }
+#endif /* HAVE_SQLCIPHER == 1*/
+
   void database::set_busy_handler(busy_handler h)
   {
     bh_ = h;
@@ -151,6 +163,11 @@ namespace sqlite3pp
   long long int database::last_insert_rowid() const
   {
     return sqlite3_last_insert_rowid(db_);
+  }
+
+  int database::changes() const
+  {
+    return sqlite3_changes(db_);
   }
 
   int database::error_code() const
@@ -527,3 +544,4 @@ namespace sqlite3pp
 
 
 }
+// vim: set ts=2 sw=2 sts=2 et:

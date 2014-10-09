@@ -1,0 +1,62 @@
+Source: sqlite3pp
+Section: libs
+Priority: optional
+Maintainer: Like Ma <likemartinma@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cmake, libsqlite3-dev, libsqlcipher-dev,
+               libboost1.46-dev | libboost1.48-dev | libboost1.53-dev | libboost1.54-dev | libboost1.55-dev
+Standards-Version: 3.9.2
+Homepage: https://github.com/iwongu/sqlite3pp
+Vcs-Git: https://github.com/iwongu/sqlite3pp.git
+Vcs-Browser: https://github.com/iwongu/sqlite3pp
+
+Package: libsqlite3pp1
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: SQLite3++ shared library
+ SQLite3++ is C++ wrapper of SQLite3 API. It supports almost all of SQLite3
+ features using C++ classes such as database, command, query, and transaction.
+ The query class supports iterator concept for fetching records. With
+ ext::function class, it's also easy to write the sqlite3's functions and
+ aggregations.
+
+Package: libsqlite3pp-dev
+Section: libdevel
+Architecture: any
+Depends: libsqlite3pp1 (= ${binary:Version})
+Multi-Arch: same
+Description: SQLite3++ development files
+ SQLite3++ is C++ wrapper of SQLite3 API. It supports almost all of SQLite3
+ features using C++ classes such as database, command, query, and transaction.
+ The query class supports iterator concept for fetching records. With
+ ext::function class, it's also easy to write the sqlite3's functions and
+ aggregations.
+ .
+ This package contains the development files (headers, static libraries)
+
+Package: libsqlcipherpp1
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: SQLCipher++ shared library
+ SQLCipher++ is C++ wrapper of SQLCipher API. It supports almost all of
+ SQLCipher features using C++ classes such as database, command, query, and
+ transaction. The query class supports iterator concept for fetching records.
+ With ext::function class, it's also easy to write the sqlite3's functions and
+ aggregations.
+
+Package: libsqlcipherpp-dev
+Section: libdevel
+Architecture: any
+Depends: libsqlcipherpp1 (= ${binary:Version})
+Multi-Arch: same
+Description: SQLCipher++ development files
+ SQLCipher++ is C++ wrapper of SQLCipher API. It supports almost all of
+ SQLCipher features using C++ classes such as database, command, query, and
+ transaction. The query class supports iterator concept for fetching records.
+ With ext::function class, it's also easy to write the sqlite3's functions and
+ aggregations.
+ .
+ This package contains the development files (headers, static libraries)

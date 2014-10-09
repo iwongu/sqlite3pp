@@ -20,8 +20,6 @@ Description: SQLite3++ shared library
  The query class supports iterator concept for fetching records. With
  ext::function class, it's also easy to write the sqlite3's functions and
  aggregations.
- .
- This package contains the development files (headers, static libraries)
 
 Package: libsqlite3pp-dev
 Section: libdevel
@@ -48,8 +46,6 @@ Description: SQLCipher++ shared library
  transaction. The query class supports iterator concept for fetching records.
  With ext::function class, it's also easy to write the sqlite3's functions and
  aggregations.
- .
- This package contains the development files (headers, static libraries)
 
 Package: libsqlcipherpp-dev
 Section: libdevel

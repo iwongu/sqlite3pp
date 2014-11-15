@@ -40,6 +40,13 @@ public:
 
     std::string operator()(unsigned int row, unsigned int column);
 
+    /**
+        * operator[]
+        * Here You receive whole Queryrow it's not contain any hint of columns just basic std::strings
+        * You get Queryrow object
+        * @param unsigned int row
+        * @return Queryrow
+    **/
     Queryrow operator[](unsigned int row);
 
     std::size_t size();

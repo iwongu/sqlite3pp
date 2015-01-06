@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
       for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 	int id;
 	char const* name, *phone;
-	boost::tie(id, name, phone) = (*i).get_columns<int, char const*, char const*>(0, 1, 2);
+	std::tie(id, name, phone) = (*i).get_columns<int, char const*, char const*>(0, 1, 2);
 	cout << id << "\t" << name << "\t" << phone << endl;
       }
       cout << endl;

@@ -1,11 +1,10 @@
 #include <exception>
+#include <functional>
 #include <iostream>
-#include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include "sqlite3pp.h"
 
 using namespace std;
-using namespace boost;
+using namespace std::placeholders;
 
 struct handler
 {
@@ -35,15 +34,13 @@ int main(int argc, char* argv[])
     sqlite3pp::database db("test.db");
 
     {
-      using namespace boost::lambda;
-
-      db.set_commit_handler((cout << constant("handle_commit\n"), 0));
+      db.set_commit_handler([]{cout << "handle_commit\n"; return 0;});
       db.set_rollback_handler(rollback_handler());
     }
 
     handler h;
 
-    db.set_update_handler(boost::bind(&handler::handle_update, &h, _1, _2, _3, _4));
+    db.set_update_handler(std::bind(&handler::handle_update, &h, _1, _2, _3, _4));
 
     db.set_authorize_handler(&handle_authorize);
 

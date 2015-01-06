@@ -1,11 +1,9 @@
 #include <string>
 #include <iostream>
-#include <boost/lambda/lambda.hpp>
 #include "sqlite3pp.h"
 #include "sqlite3ppext.h"
 
 using namespace std;
-using namespace boost::lambda;
 
 void step0(sqlite3pp::ext::context& c)
 {

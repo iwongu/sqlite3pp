@@ -44,8 +44,6 @@ namespace sqlite3pp
   class null_type {};
   extern null_type ignore;
 
-  int enable_shared_cache(bool fenable);
-
   class database : boost::noncopyable
   {
     friend class statement;

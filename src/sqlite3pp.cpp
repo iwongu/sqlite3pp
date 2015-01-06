@@ -64,11 +64,6 @@ namespace sqlite3pp
 
   } // namespace
 
-  int enable_shared_cache(bool fenable)
-  {
-    return sqlite3_enable_shared_cache(fenable);
-  }
-
   database::database(char const* dbname) : db_(0)
   {
     if (dbname) {

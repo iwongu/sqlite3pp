@@ -25,9 +25,8 @@
 #ifndef SQLITE3PP_H
 #define SQLITE3PP_H
 
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/utility.hpp>
 #include <functional>
+#include <iterator>
 #include <sqlite3.h>
 #include <stdexcept>
 #include <string>
@@ -44,7 +43,17 @@ namespace sqlite3pp
   class null_type {};
   extern null_type ignore;
 
-  class database : boost::noncopyable
+  class noncopyable
+  {
+   protected:
+    constexpr noncopyable() = default;
+    ~noncopyable() = default;
+
+    noncopyable( const noncopyable& ) = delete;
+    noncopyable& operator=( const noncopyable& ) = delete;
+  };
+
+  class database : noncopyable
   {
     friend class statement;
     friend class database_error;
@@ -101,7 +110,7 @@ namespace sqlite3pp
     explicit database_error(database& db);
   };
 
-  class statement : boost::noncopyable
+  class statement : noncopyable
   {
    public:
     int prepare(char const* stmt);
@@ -260,20 +269,20 @@ namespace sqlite3pp
     };
 
     class query_iterator
-	: public boost::iterator_facade<query_iterator, rows, boost::single_pass_traversal_tag, rows>
+      : public std::iterator<std::input_iterator_tag, rows>
     {
      public:
       query_iterator();
       explicit query_iterator(query* cmd);
 
+      bool operator==(query_iterator const&) const;
+      bool operator!=(query_iterator const&) const;
+
+      query_iterator& operator++();
+
+      value_type operator*() const;
+
      private:
-      friend class boost::iterator_core_access;
-
-      void increment();
-      bool equal(query_iterator const& other) const;
-
-      rows dereference() const;
-
       query* cmd_;
       int rc_;
     };
@@ -291,7 +300,7 @@ namespace sqlite3pp
     iterator end();
   };
 
-  class transaction : boost::noncopyable
+  class transaction : noncopyable
   {
    public:
     explicit transaction(database& db, bool fcommit = false, bool freserve = false);

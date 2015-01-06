@@ -433,20 +433,22 @@ namespace sqlite3pp
       throw database_error(cmd_->db_);
   }
 
-  void query::query_iterator::increment()
-  {
-    rc_ = cmd_->step();
-    if (rc_ != SQLITE_ROW && rc_ != SQLITE_DONE)
-      throw database_error(cmd_->db_);
-  }
-
-  bool query::query_iterator::equal(query_iterator const& other) const
-  {
+  bool query::query_iterator::operator==(query::query_iterator const& other) const {
     return rc_ == other.rc_;
   }
 
-  query::rows query::query_iterator::dereference() const
-  {
+  bool query::query_iterator::operator!=(query::query_iterator const& other) const {
+    return rc_ != other.rc_;
+  }
+
+  query::query_iterator& query::query_iterator::operator++() {
+    rc_ = cmd_->step();
+    if (rc_ != SQLITE_ROW && rc_ != SQLITE_DONE)
+      throw database_error(cmd_->db_);
+    return *this;
+  }
+
+  query::query_iterator::value_type query::query_iterator::operator*() const {
     return rows(cmd_->stmt_);
   }
 

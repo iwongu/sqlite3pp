@@ -2,7 +2,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2012 Wongoo Lee (iwongu at gmail dot com)
+// Copyright (c) 2015 Wongoo Lee (iwongu at gmail dot com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,31 +34,31 @@ namespace sqlite3pp
   {
     int busy_handler_impl(void* p, int cnt)
     {
-      database::busy_handler* h = static_cast<database::busy_handler*>(p);
+      auto h = static_cast<database::busy_handler*>(p);
       return (*h)(cnt);
     }
 
     int commit_hook_impl(void* p)
     {
-      database::commit_handler* h = static_cast<database::commit_handler*>(p);
+      auto h = static_cast<database::commit_handler*>(p);
       return (*h)();
     }
 
     void rollback_hook_impl(void* p)
     {
-      database::rollback_handler* h = static_cast<database::rollback_handler*>(p);
+      auto h = static_cast<database::rollback_handler*>(p);
       (*h)();
     }
 
     void update_hook_impl(void* p, int opcode, char const* dbname, char const* tablename, long long int rowid)
     {
-      database::update_handler* h = static_cast<database::update_handler*>(p);
+      auto h = static_cast<database::update_handler*>(p);
       (*h)(opcode, dbname, tablename, rowid);
     }
 
     int authorizer_impl(void* p, int evcode, char const* p1, char const* p2, char const* dbname, char const* tvname)
     {
-      database::authorize_handler* h = static_cast<database::authorize_handler*>(p);
+      auto h = static_cast<database::authorize_handler*>(p);
       return (*h)(evcode, p1, p2, dbname, tvname);
     }
 

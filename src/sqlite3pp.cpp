@@ -2,7 +2,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2012 Wongoo Lee (iwongu at gmail dot com)
+// Copyright (c) 2015 Wongoo Lee (iwongu at gmail dot com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <memory>
 #include "sqlite3pp.h"
-#include <boost/shared_ptr.hpp>
 
 namespace sqlite3pp
 {
@@ -34,31 +34,31 @@ namespace sqlite3pp
   {
     int busy_handler_impl(void* p, int cnt)
     {
-      database::busy_handler* h = static_cast<database::busy_handler*>(p);
+      auto h = static_cast<database::busy_handler*>(p);
       return (*h)(cnt);
     }
 
     int commit_hook_impl(void* p)
     {
-      database::commit_handler* h = static_cast<database::commit_handler*>(p);
+      auto h = static_cast<database::commit_handler*>(p);
       return (*h)();
     }
 
     void rollback_hook_impl(void* p)
     {
-      database::rollback_handler* h = static_cast<database::rollback_handler*>(p);
+      auto h = static_cast<database::rollback_handler*>(p);
       (*h)();
     }
 
     void update_hook_impl(void* p, int opcode, char const* dbname, char const* tablename, long long int rowid)
     {
-      database::update_handler* h = static_cast<database::update_handler*>(p);
+      auto h = static_cast<database::update_handler*>(p);
       (*h)(opcode, dbname, tablename, rowid);
     }
 
     int authorizer_impl(void* p, int evcode, char const* p1, char const* p2, char const* dbname, char const* tvname)
     {
-      database::authorize_handler* h = static_cast<database::authorize_handler*>(p);
+      auto h = static_cast<database::authorize_handler*>(p);
       return (*h)(evcode, p1, p2, dbname, tvname);
     }
 
@@ -167,7 +167,7 @@ namespace sqlite3pp
   {
     va_list ap;
     va_start(ap, sql);
-    boost::shared_ptr<char> msql(sqlite3_vmprintf(sql, ap), sqlite3_free);
+    std::shared_ptr<char> msql(sqlite3_vmprintf(sql, ap), sqlite3_free);
     va_end(ap);
 
     return execute(msql.get());
@@ -421,31 +421,37 @@ namespace sqlite3pp
     return getstream(this, idx);
   }
 
-
   query::query_iterator::query_iterator() : cmd_(0)
   {
     rc_ = SQLITE_DONE;
   }
 
-  query::query_iterator::query_iterator(query* cmd) : cmd_(cmd) {
-    rc_ = cmd_->step();
-    if (rc_ != SQLITE_ROW && rc_ != SQLITE_DONE)
-      throw database_error(cmd_->db_);
-  }
-
-  void query::query_iterator::increment()
+  query::query_iterator::query_iterator(query* cmd) : cmd_(cmd)
   {
     rc_ = cmd_->step();
     if (rc_ != SQLITE_ROW && rc_ != SQLITE_DONE)
       throw database_error(cmd_->db_);
   }
 
-  bool query::query_iterator::equal(query_iterator const& other) const
+  bool query::query_iterator::operator==(query::query_iterator const& other) const
   {
     return rc_ == other.rc_;
   }
 
-  query::rows query::query_iterator::dereference() const
+  bool query::query_iterator::operator!=(query::query_iterator const& other) const
+  {
+    return rc_ != other.rc_;
+  }
+
+  query::query_iterator& query::query_iterator::operator++()
+  {
+    rc_ = cmd_->step();
+    if (rc_ != SQLITE_ROW && rc_ != SQLITE_DONE)
+      throw database_error(cmd_->db_);
+    return *this;
+  }
+
+  query::query_iterator::value_type query::query_iterator::operator*() const
   {
     return rows(cmd_->stmt_);
   }

@@ -2,7 +2,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2015 Wongoo Lee (iwongu at gmail dot com)
+// Copyright (c) 2012 Wongoo Lee (iwongu at gmail dot com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,25 +34,25 @@ namespace sqlite3pp
 
       void function_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        auto f = static_cast<function::function_handler*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        (*f)(c);
+	function::function_handler* f = static_cast<function::function_handler*>(sqlite3_user_data(ctx));
+	context c(ctx, nargs, values);
+	(*f)(c);
       }
 
       void step_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        auto p = static_cast<std::pair<aggregate::pfunction_base, aggregate::pfunction_base>*>(sqlite3_user_data(ctx));
-        auto s = static_cast<aggregate::function_handler*>((*p).first.get());
-        context c(ctx, nargs, values);
-        ((function::function_handler&)*s)(c);
+	std::pair<function::pfunction_base, function::pfunction_base>* p =
+	  static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+	context c(ctx, nargs, values);
+	((function::function_handler&)*(*p).first)(c);
       }
 
       void finalize_impl(sqlite3_context* ctx)
       {
-        auto p = static_cast<std::pair<aggregate::pfunction_base, aggregate::pfunction_base>*>(sqlite3_user_data(ctx));
-        auto f = static_cast<aggregate::function_handler*>((*p).second.get());
-        context c(ctx);
-        ((function::function_handler&)*f)(c);
+	std::pair<function::pfunction_base, function::pfunction_base>* p =
+	  static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+	context c(ctx);
+	((function::function_handler&)*(*p).second)(c);
       }
 
     } // namespace

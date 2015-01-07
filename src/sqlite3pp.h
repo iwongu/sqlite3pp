@@ -2,7 +2,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2012 Wongoo Lee (iwongu at gmail dot com)
+// Copyright (c) 2015 Wongoo Lee (iwongu at gmail dot com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,12 @@
 #ifndef SQLITE3PP_H
 #define SQLITE3PP_H
 
-#include <string>
-#include <stdexcept>
+#include <functional>
+#include <iterator>
 #include <sqlite3.h>
-#include <boost/utility.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/function.hpp>
+#include <stdexcept>
+#include <string>
+#include <tuple>
 
 namespace sqlite3pp
 {
@@ -44,7 +43,17 @@ namespace sqlite3pp
   class null_type {};
   extern null_type ignore;
 
-  class database : boost::noncopyable
+  class noncopyable
+  {
+   protected:
+    constexpr noncopyable() = default;
+    ~noncopyable() = default;
+
+    noncopyable(noncopyable const&) = delete;
+    noncopyable& operator=(noncopyable const&) = delete;
+  };
+
+  class database : noncopyable
   {
     friend class statement;
     friend class database_error;
@@ -52,11 +61,11 @@ namespace sqlite3pp
     friend class ext::aggregate;
 
    public:
-    typedef boost::function<int (int)> busy_handler;
-    typedef boost::function<int ()> commit_handler;
-    typedef boost::function<void ()> rollback_handler;
-    typedef boost::function<void (int, char const*, char const*, long long int)> update_handler;
-    typedef boost::function<int (int, char const*, char const*, char const*, char const*)> authorize_handler;
+    typedef std::function<int (int)> busy_handler;
+    typedef std::function<int ()> commit_handler;
+    typedef std::function<void ()> rollback_handler;
+    typedef std::function<void (int, char const*, char const*, long long int)> update_handler;
+    typedef std::function<int (int, char const*, char const*, char const*, char const*)> authorize_handler;
 
     explicit database(char const* dbname = 0);
     ~database();
@@ -101,7 +110,7 @@ namespace sqlite3pp
     explicit database_error(database& db);
   };
 
-  class statement : boost::noncopyable
+  class statement : noncopyable
   {
    public:
     int prepare(char const* stmt);
@@ -205,43 +214,43 @@ namespace sqlite3pp
       }
 
       template <class T1>
-      boost::tuple<T1> get_columns(int idx1) const {
-        return boost::make_tuple(get(idx1, T1()));
+      std::tuple<T1> get_columns(int idx1) const {
+        return std::make_tuple(get(idx1, T1()));
       }
 
       template <class T1, class T2>
-      boost::tuple<T1, T2> get_columns(int idx1, int idx2) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()));
+      std::tuple<T1, T2> get_columns(int idx1, int idx2) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()));
       }
 
       template <class T1, class T2, class T3>
-      boost::tuple<T1, T2, T3> get_columns(int idx1, int idx2, int idx3) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()));
+      std::tuple<T1, T2, T3> get_columns(int idx1, int idx2, int idx3) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()));
       }
 
       template <class T1, class T2, class T3, class T4>
-      boost::tuple<T1, T2, T3, T4> get_columns(int idx1, int idx2, int idx3, int idx4) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()));
+      std::tuple<T1, T2, T3, T4> get_columns(int idx1, int idx2, int idx3, int idx4) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()));
       }
 
       template <class T1, class T2, class T3, class T4, class T5>
-      boost::tuple<T1, T2, T3, T4, T5> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()));
+      std::tuple<T1, T2, T3, T4, T5> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()));
       }
 
       template <class T1, class T2, class T3, class T4, class T5, class T6>
-      boost::tuple<T1, T2, T3, T4, T5, T6> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()));
+      std::tuple<T1, T2, T3, T4, T5, T6> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()));
       }
 
       template <class T1, class T2, class T3, class T4, class T5, class T6, class T7>
-      boost::tuple<T1, T2, T3, T4, T5, T6, T7> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()));
+      std::tuple<T1, T2, T3, T4, T5, T6, T7> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()));
       }
 
       template <class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
-      boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7, int idx8) const {
-        return boost::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()), get(idx8, T8()));
+      std::tuple<T1, T2, T3, T4, T5, T6, T7, T8> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7, int idx8) const {
+        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()), get(idx8, T8()));
       }
 
       getstream getter(int idx = 0);
@@ -260,20 +269,20 @@ namespace sqlite3pp
     };
 
     class query_iterator
-	: public boost::iterator_facade<query_iterator, rows, boost::single_pass_traversal_tag, rows>
+      : public std::iterator<std::input_iterator_tag, rows>
     {
      public:
       query_iterator();
       explicit query_iterator(query* cmd);
 
+      bool operator==(query_iterator const&) const;
+      bool operator!=(query_iterator const&) const;
+
+      query_iterator& operator++();
+
+      value_type operator*() const;
+
      private:
-      friend class boost::iterator_core_access;
-
-      void increment();
-      bool equal(query_iterator const& other) const;
-
-      rows dereference() const;
-
       query* cmd_;
       int rc_;
     };
@@ -291,7 +300,7 @@ namespace sqlite3pp
     iterator end();
   };
 
-  class transaction : boost::noncopyable
+  class transaction : noncopyable
   {
    public:
     explicit transaction(database& db, bool fcommit = false, bool freserve = false);

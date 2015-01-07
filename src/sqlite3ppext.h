@@ -2,7 +2,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2012 Wongoo Lee (iwongu at gmail dot com)
+// Copyright (c) 2015 Wongoo Lee (iwongu at gmail dot com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,17 +25,36 @@
 #ifndef SQLITE3PPEXT_H
 #define SQLITE3PPEXT_H
 
-#include "sqlite3pp.h"
 #include <map>
-#include <boost/shared_ptr.hpp>
-#include <boost/type_traits.hpp>
+#include "sqlite3pp.h"
 
 namespace sqlite3pp
 {
   namespace ext
   {
+    template<class F>
+    struct function_traits;
 
-    class context : boost::noncopyable
+    template<class R, class... Args>
+    struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)>
+    {};
+
+    template<class R, class... Args>
+    struct function_traits<R(Args...)>
+    {
+      using return_type = R;
+
+      static constexpr std::size_t arity = sizeof...(Args);
+
+      template <std::size_t N>
+      struct argument
+      {
+        static_assert(N < arity, "error: invalid parameter index.");
+        using type = typename std::tuple_element<N,std::tuple<Args...>>::type;
+      };
+    };
+
+    class context : noncopyable
     {
      public:
       explicit context(sqlite3_context* ctx, int nargs = 0, sqlite3_value** values = 0);
@@ -81,8 +100,7 @@ namespace sqlite3pp
       template <class R>
       void function0_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R ()>* f =
-            static_cast<boost::function<R ()>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R ()>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)());
       }
@@ -90,8 +108,7 @@ namespace sqlite3pp
       template <class R, class P1>
       void function1_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1)>* f =
-            static_cast<boost::function<R (P1)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R (P1)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0)));
       }
@@ -99,8 +116,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2>
       void function2_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2)>* f =
-            static_cast<boost::function<R (P1, P2)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R (P1, P2)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1)));
       }
@@ -108,8 +124,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3>
       void function3_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3)>* f =
-            static_cast<boost::function<R (P1, P2, P3)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R (P1, P2, P3)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2)));
       }
@@ -117,8 +132,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3, class P4>
       void function4_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3, P4)>* f =
-            static_cast<boost::function<R (P1, P2, P3, P4)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R (P1, P2, P3, P4)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3)));
       }
@@ -126,8 +140,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3, class P4, class P5>
       void function5_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3, P4, P5)>* f =
-            static_cast<boost::function<R (P1, P2, P3, P4, P5)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<std::function<R (P1, P2, P3, P4, P5)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3), c.context::get<P5>(4)));
       }
@@ -135,19 +148,19 @@ namespace sqlite3pp
     }
 
 
-    class function : boost::noncopyable
+    class function : noncopyable
     {
      public:
-      typedef boost::function<void (context&)> function_handler;
-      typedef boost::shared_ptr<boost::function_base> pfunction_base;
+      typedef std::function<void (context&)> function_handler;
+      typedef std::shared_ptr<void> pfunction_base;
 
       explicit function(database& db);
 
       int create(char const* name, function_handler h, int nargs = 0);
 
-      template <class F> int create(char const* name, boost::function<F> h) {
-        fh_[name] = boost::shared_ptr<boost::function_base>(new boost::function<F>(h));
-        return create_function_impl<boost::function<F>::arity, F>()(db_, fh_[name].get(), name);
+      template <class F> int create(char const* name, std::function<F> h) {
+        fh_[name] = std::shared_ptr<void>(new std::function<F>(h));
+        return create_function_impl<function_traits<F>::arity, F>()(db_, fh_[name].get(), name);
       }
 
      private:
@@ -156,9 +169,9 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<0, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
 
           return sqlite3_create_function(db, name, 0, SQLITE_UTF8, fh,
                                          function0_impl<R>,
@@ -168,10 +181,10 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<1, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
-          typedef typename FT::arg1_type P1;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
+          typedef typename FT::template argument<0>::type P1;
 
           return sqlite3_create_function(db, name, 1, SQLITE_UTF8, fh,
                                          function1_impl<R, P1>,
@@ -181,11 +194,11 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<2, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
-          typedef typename FT::arg1_type P1;
-          typedef typename FT::arg2_type P2;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
+          typedef typename FT::template argument<0>::type P1;
+          typedef typename FT::template argument<1>::type P2;
 
           return sqlite3_create_function(db, name, 2, SQLITE_UTF8, fh,
                                          function2_impl<R, P1, P2>,
@@ -195,12 +208,12 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<3, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
-          typedef typename FT::arg1_type P1;
-          typedef typename FT::arg2_type P2;
-          typedef typename FT::arg3_type P3;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
+          typedef typename FT::template argument<0>::type P1;
+          typedef typename FT::template argument<1>::type P2;
+          typedef typename FT::template argument<2>::type P3;
 
           return sqlite3_create_function(db, name, 3, SQLITE_UTF8, fh,
                                          function3_impl<R, P1, P2, P3>,
@@ -210,13 +223,13 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<4, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
-          typedef typename FT::arg1_type P1;
-          typedef typename FT::arg2_type P2;
-          typedef typename FT::arg3_type P3;
-          typedef typename FT::arg4_type P4;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
+          typedef typename FT::template argument<0>::type P1;
+          typedef typename FT::template argument<1>::type P2;
+          typedef typename FT::template argument<2>::type P3;
+          typedef typename FT::template argument<3>::type P4;
 
           return sqlite3_create_function(db, name, 4, SQLITE_UTF8, fh,
                                          function4_impl<R, P1, P2, P3, P4>,
@@ -226,14 +239,14 @@ namespace sqlite3pp
 
       template <class F>
       struct create_function_impl<5, F> {
-        int operator()(sqlite3* db, boost::function_base* fh, char const* name) {
-          typedef boost::function_traits<F> FT;
-          typedef typename FT::result_type R;
-          typedef typename FT::arg1_type P1;
-          typedef typename FT::arg2_type P2;
-          typedef typename FT::arg3_type P3;
-          typedef typename FT::arg4_type P4;
-          typedef typename FT::arg5_type P5;
+        int operator()(sqlite3* db, void* fh, char const* name) {
+          typedef function_traits<F> FT;
+          typedef typename FT::return_type R;
+          typedef typename FT::template argument<0>::type P1;
+          typedef typename FT::template argument<1>::type P2;
+          typedef typename FT::template argument<2>::type P3;
+          typedef typename FT::template argument<3>::type P4;
+          typedef typename FT::template argument<4>::type P5;
 
           return sqlite3_create_function(db, name, 5, SQLITE_UTF8, fh,
                                          function5_impl<R, P1, P2, P3, P4, P5>,
@@ -314,11 +327,11 @@ namespace sqlite3pp
 
     }
 
-    class aggregate : boost::noncopyable
+    class aggregate : noncopyable
     {
      public:
-      typedef boost::function<void (context&)> function_handler;
-      typedef boost::shared_ptr<boost::function_base> pfunction_base;
+      typedef std::function<void (context&)> function_handler;
+      typedef std::shared_ptr<void> pfunction_base;
 
       explicit aggregate(database& db);
 

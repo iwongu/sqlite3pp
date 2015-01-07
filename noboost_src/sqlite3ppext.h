@@ -81,8 +81,7 @@ namespace sqlite3pp
       template <class R>
       void function0_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R ()>* f =
-            static_cast<boost::function<R ()>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R ()>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)());
       }
@@ -90,8 +89,7 @@ namespace sqlite3pp
       template <class R, class P1>
       void function1_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1)>* f =
-            static_cast<boost::function<R (P1)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R (P1)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0)));
       }
@@ -99,8 +97,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2>
       void function2_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2)>* f =
-            static_cast<boost::function<R (P1, P2)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R (P1, P2)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1)));
       }
@@ -108,8 +105,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3>
       void function3_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3)>* f =
-            static_cast<boost::function<R (P1, P2, P3)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R (P1, P2, P3)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2)));
       }
@@ -117,8 +113,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3, class P4>
       void function4_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3, P4)>* f =
-            static_cast<boost::function<R (P1, P2, P3, P4)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R (P1, P2, P3, P4)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3)));
       }
@@ -126,8 +121,7 @@ namespace sqlite3pp
       template <class R, class P1, class P2, class P3, class P4, class P5>
       void function5_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        boost::function<R (P1, P2, P3, P4, P5)>* f =
-            static_cast<boost::function<R (P1, P2, P3, P4, P5)>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<boost::function<R (P1, P2, P3, P4, P5)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
         c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3), c.context::get<P5>(4)));
       }

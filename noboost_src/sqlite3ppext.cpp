@@ -34,25 +34,23 @@ namespace sqlite3pp
 
       void function_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-	function::function_handler* f = static_cast<function::function_handler*>(sqlite3_user_data(ctx));
-	context c(ctx, nargs, values);
-	(*f)(c);
+        auto f = static_cast<function::function_handler*>(sqlite3_user_data(ctx));
+        context c(ctx, nargs, values);
+        (*f)(c);
       }
 
       void step_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-	std::pair<function::pfunction_base, function::pfunction_base>* p =
-	  static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
-	context c(ctx, nargs, values);
-	((function::function_handler&)*(*p).first)(c);
+        auto p = static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+        context c(ctx, nargs, values);
+        ((function::function_handler&)*(*p).first)(c);
       }
 
       void finalize_impl(sqlite3_context* ctx)
       {
-	std::pair<function::pfunction_base, function::pfunction_base>* p =
-	  static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
-	context c(ctx);
-	((function::function_handler&)*(*p).second)(c);
+        auto p = static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+        context c(ctx);
+        ((function::function_handler&)*(*p).second)(c);
       }
 
     } // namespace

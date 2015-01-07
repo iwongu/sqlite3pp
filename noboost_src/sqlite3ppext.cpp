@@ -41,16 +41,18 @@ namespace sqlite3pp
 
       void step_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        auto p = static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+        auto p = static_cast<std::pair<aggregate::pfunction_base, aggregate::pfunction_base>*>(sqlite3_user_data(ctx));
+        auto s = static_cast<aggregate::function_handler*>((*p).first.get());
         context c(ctx, nargs, values);
-        ((function::function_handler&)*(*p).first)(c);
+        ((function::function_handler&)*s)(c);
       }
 
       void finalize_impl(sqlite3_context* ctx)
       {
-        auto p = static_cast<std::pair<function::pfunction_base, function::pfunction_base>*>(sqlite3_user_data(ctx));
+        auto p = static_cast<std::pair<aggregate::pfunction_base, aggregate::pfunction_base>*>(sqlite3_user_data(ctx));
+        auto f = static_cast<aggregate::function_handler*>((*p).second.get());
         context c(ctx);
-        ((function::function_handler&)*(*p).second)(c);
+        ((function::function_handler&)*f)(c);
       }
 
     } // namespace

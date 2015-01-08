@@ -67,7 +67,7 @@ namespace sqlite3pp
   database::database(char const* dbname) : db_(0)
   {
     if (dbname) {
-      int rc = connect(dbname);
+      auto rc = connect(dbname);
       if (rc != SQLITE_OK)
         throw database_error("can't connect database");
     }

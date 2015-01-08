@@ -158,7 +158,7 @@ namespace sqlite3pp
 
       template <class T>
       bindstream& operator << (T value) {
-        int rc = cmd_.bind(idx_, value);
+        auto rc = cmd_.bind(idx_, value);
         if (rc != SQLITE_OK) {
           throw database_error(cmd_.db_);
         }

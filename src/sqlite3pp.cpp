@@ -94,7 +94,7 @@ namespace sqlite3pp
 
   int database::disconnect()
   {
-    int rc = SQLITE_OK;
+    auto rc = SQLITE_OK;
     if (db_) {
       rc = sqlite3_close(db_);
       db_ = 0;
@@ -182,7 +182,7 @@ namespace sqlite3pp
   statement::statement(database& db, char const* stmt) : db_(db), stmt_(0), tail_(0)
   {
     if (stmt) {
-      int rc = prepare(stmt);
+      auto rc = prepare(stmt);
       if (rc != SQLITE_OK)
         throw database_error(db_);
     }
@@ -190,14 +190,14 @@ namespace sqlite3pp
 
   statement::~statement()
   {
-    int rc = finish();
+    auto rc = finish();
     if (rc != SQLITE_OK)
       throw database_error(db_);
   }
 
   int statement::prepare(char const* stmt)
   {
-    int rc = finish();
+    auto rc = finish();
     if (rc != SQLITE_OK)
       return rc;
 
@@ -211,7 +211,7 @@ namespace sqlite3pp
 
   int statement::finish()
   {
-    int rc = SQLITE_OK;
+    auto rc = SQLITE_OK;
     if (stmt_) {
       rc = finish_impl(stmt_);
       stmt_ = 0;
@@ -273,37 +273,37 @@ namespace sqlite3pp
 
   int statement::bind(char const* name, int value)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value);
   }
 
   int statement::bind(char const* name, double value)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value);
   }
 
   int statement::bind(char const* name, long long int value)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value);
   }
 
   int statement::bind(char const* name, char const* value, bool fstatic)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, fstatic);
   }
 
   int statement::bind(char const* name, void const* value, int n, bool fstatic)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, n, fstatic);
   }
 
   int statement::bind(char const* name)
   {
-    int idx = sqlite3_bind_parameter_index(stmt_, name);
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx);
   }
 
@@ -328,7 +328,7 @@ namespace sqlite3pp
 
   int command::execute()
   {
-    int rc = step();
+    auto rc = step();
     if (rc == SQLITE_DONE) rc = SQLITE_OK;
 
     return rc;
@@ -336,7 +336,7 @@ namespace sqlite3pp
 
   int command::execute_all()
   {
-    int rc = execute();
+    auto rc = execute();
     if (rc != SQLITE_OK) return rc;
 
     char const* sql = tail_;
@@ -495,7 +495,7 @@ namespace sqlite3pp
   transaction::~transaction()
   {
     if (db_) {
-      int rc = db_->execute(fcommit_ ? "COMMIT" : "ROLLBACK");
+      auto rc = db_->execute(fcommit_ ? "COMMIT" : "ROLLBACK");
       if (rc != SQLITE_OK)
 	throw database_error(*db_);
     }
@@ -503,7 +503,7 @@ namespace sqlite3pp
 
   int transaction::commit()
   {
-    database* db = db_;
+    auto db = db_;
     db_ = 0;
     int rc = db->execute("COMMIT");
     return rc;
@@ -511,7 +511,7 @@ namespace sqlite3pp
 
   int transaction::rollback()
   {
-    database* db = db_;
+    auto db = db_;
     db_ = 0;
     int rc = db->execute("ROLLBACK");
     return rc;

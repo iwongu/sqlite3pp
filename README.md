@@ -1,7 +1,7 @@
 sqlite3pp
 =========
 
-SQLite3++ - C++ wrapper of SQLite3 API.
+<i>NEWS - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory.</i>
 
 It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
 
@@ -83,7 +83,7 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
   int id;
   char const* name, *phone;
-  boost::tie(id, name, phone) =
+  std::tie(id, name, phone) =
     (*i).get_columns<int, char const*, char const*>(0, 1, 2);
   cout << id << "\t" << name << "\t" << phone << endl;
 }
@@ -91,17 +91,16 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 
 ```cpp
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
-  int id;
   string name, phone;
   (*i).getter() >> sqlite3pp::ignore >> name >> phone;
-  cout << id << "\t" << name << "\t" << phone << endl;
+  cout << "\t" << name << "\t" << phone << endl;
 }
 ```
 
 ## attach
 
 ```cpp
-sqlite3pp::database db("foods.db");
+sqlite3pp::database db("foods.db");b
 db.attach("test.db", "test");
 
 sqlite3pp::query qry(
@@ -121,9 +120,7 @@ struct rollback_handler
 
 sqlite3pp::database db("test.db");
 
-using namespace boost::lambda;
-
-db.set_commit_handler((cout << constant("handle_commit\n"), 0));
+db.set_commit_handler([]{ cout << "handle_commit\n"; return 0; });
 db.set_rollback_handler(rollback_handler());
 ```
 
@@ -150,7 +147,9 @@ struct handler
   int cnt_;
 };
 
-db.set_update_handler(boost::bind(&handler::handle_update, &h, _1, _2, _3, _4));
+using namespace std::placeholders;
+
+db.set_update_handler(std::bind(&handler::handle_update, &h, _1, _2, _3, _4));
 ```
 
 ## function
@@ -190,9 +189,7 @@ func.create("test3", &test3, 1);
 ```
 
 ```cpp
-using namespace boost::lambda;
-
-func.create<int ()>("test4", constant(500));
+func.create<int ()>("test4", []{ return 500; });
 ```
 
 ```cpp
@@ -206,9 +203,7 @@ string test6(string const& s1, string const& s2, string const& s3)
   return s1 + s2 + s3;
 }
 
-using namespace boost::lambda;
-
-func.create<int (int)>("test5", _1 + constant(1000));
+func.create<int (int)>("test5", [](int i){ return i + 10000; });
 func.create<string (string, string, string)>("test6", &test6);
 ```
 

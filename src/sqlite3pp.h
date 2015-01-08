@@ -61,11 +61,11 @@ namespace sqlite3pp
     friend class ext::aggregate;
 
    public:
-    typedef std::function<int (int)> busy_handler;
-    typedef std::function<int ()> commit_handler;
-    typedef std::function<void ()> rollback_handler;
-    typedef std::function<void (int, char const*, char const*, long long int)> update_handler;
-    typedef std::function<int (int, char const*, char const*, char const*, char const*)> authorize_handler;
+    using busy_handler = std::function<int (int)>;
+    using commit_handler = std::function<int ()>;
+    using rollback_handler = std::function<void ()>;
+    using update_handler = std::function<void (int, char const*, char const*, long long int)>;
+    using  authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
     explicit database(char const* dbname = nullptr);
     ~database();
@@ -294,7 +294,7 @@ namespace sqlite3pp
     char const* column_name(int idx) const;
     char const* column_decltype(int idx) const;
 
-    typedef query_iterator iterator;
+    using iterator = query_iterator;
 
     iterator begin();
     iterator end();

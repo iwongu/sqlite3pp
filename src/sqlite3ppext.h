@@ -57,7 +57,7 @@ namespace sqlite3pp
     class context : noncopyable
     {
      public:
-      explicit context(sqlite3_context* ctx, int nargs = 0, sqlite3_value** values = 0);
+      explicit context(sqlite3_context* ctx, int nargs = 0, sqlite3_value** values = nullptr);
 
       int args_count() const;
       int args_bytes(int idx) const;

@@ -97,7 +97,7 @@ namespace sqlite3pp
     auto rc = SQLITE_OK;
     if (db_) {
       rc = sqlite3_close(db_);
-      db_ = 0;
+      db_ = nullptr;
     }
 
     return rc;
@@ -214,9 +214,9 @@ namespace sqlite3pp
     auto rc = SQLITE_OK;
     if (stmt_) {
       rc = finish_impl(stmt_);
-      stmt_ = 0;
+      stmt_ = nullptr;
     }
-    tail_ = 0;
+    tail_ = nullptr;
 
     return rc;
   }
@@ -504,7 +504,7 @@ namespace sqlite3pp
   int transaction::commit()
   {
     auto db = db_;
-    db_ = 0;
+    db_ = nullptr;
     int rc = db->execute("COMMIT");
     return rc;
   }
@@ -512,7 +512,7 @@ namespace sqlite3pp
   int transaction::rollback()
   {
     auto db = db_;
-    db_ = 0;
+    db_ = nullptr;
     int rc = db->execute("ROLLBACK");
     return rc;
   }

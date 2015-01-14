@@ -46,7 +46,7 @@ namespace sqlite3pp
   class noncopyable
   {
    protected:
-    constexpr noncopyable() = default;
+    noncopyable() = default;
     ~noncopyable() = default;
 
     noncopyable(noncopyable const&) = delete;
@@ -65,7 +65,7 @@ namespace sqlite3pp
     using commit_handler = std::function<int ()>;
     using rollback_handler = std::function<void ()>;
     using update_handler = std::function<void (int, char const*, char const*, long long int)>;
-    using  authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
+    using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
     explicit database(char const* dbname = nullptr);
     ~database();

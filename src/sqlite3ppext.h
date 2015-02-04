@@ -50,7 +50,7 @@ namespace sqlite3pp
       struct argument
       {
         static_assert(N < arity, "error: invalid parameter index.");
-        using type = typename std::tuple_element<N,std::tuple<Args...>>::type;
+        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
       };
     };
 
@@ -372,7 +372,6 @@ namespace sqlite3pp
 
       std::map<std::string, std::pair<pfunction_base, pfunction_base> > ah_;
     };
-
 
   } // namespace ext
 

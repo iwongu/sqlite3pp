@@ -218,9 +218,9 @@ namespace sqlite3pp
         return get(idx, T());
       }
 
-      template <class... T>
-      std::tuple<T...> get_columns(typename convert<T>::to_int... idx) const {
-        return std::make_tuple(get(idx, T())...);
+      template <class... Ts>
+      std::tuple<Ts...> get_columns(typename convert<Ts>::to_int... idxs) const {
+        return std::make_tuple(get(idxs, Ts())...);
       }
 
       getstream getter(int idx = 0);

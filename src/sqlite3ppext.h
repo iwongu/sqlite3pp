@@ -122,6 +122,11 @@ namespace sqlite3pp
       void* aggregate_data(int size);
       int aggregate_count();
 
+      template <class... Ts>
+      std::tuple<Ts...> to_tuple() {
+        return to_tuple_impl(0, *this, std::tuple<Ts...>());
+      }
+
      private:
       int get(int idx, int) const;
       double get(int idx, double) const;
@@ -129,6 +134,17 @@ namespace sqlite3pp
       char const* get(int idx, char const*) const;
       std::string get(int idx, std::string) const;
       void const* get(int idx, void const*) const;
+
+      template<class H, class... Ts>
+      static inline std::tuple<H, Ts...> to_tuple_impl(int index, const context& c, std::tuple<H, Ts...>&&)
+      {
+        auto h = std::make_tuple(c.context::get<H>(index));
+        return std::tuple_cat(h, to_tuple_impl(++index, c, std::tuple<Ts...>()));
+      }
+      static inline std::tuple<> to_tuple_impl(int index, const context& c, std::tuple<>&&)
+      {
+        return std::tuple<>();
+      }
 
      private:
       sqlite3_context* ctx_;
@@ -138,35 +154,12 @@ namespace sqlite3pp
 
     namespace
     {
-
-      template<size_t N>
-      struct TupleImpl
-      {
-        template<typename... Ps>
-        static inline void apply(const context& c, std::tuple<Ps...>& t)
-        {
-          std::get<N-1>(t) = c.context::get<typename std::tuple_element<N-1, std::tuple<Ps...>>::type>(N-1);
-          TupleImpl<N-1>::apply(c, t);
-        }
-      };
-
-      template<>
-      struct TupleImpl<0>
-      {
-        template<typename... Ps>
-        static inline void apply(const context& c, std::tuple<Ps...>& t)
-        {
-        }
-      };
-
       template <class R, class... Ps>
       void functionx_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
         context c(ctx, nargs, values);
         auto f = static_cast<std::function<R (Ps...)>*>(sqlite3_user_data(ctx));
-        auto t = std::tuple<Ps...>();
-        TupleImpl<sizeof...(Ps)>::apply(c, t);
-        c.result(apply(*f, t));
+        c.result(apply(*f, c.to_tuple<Ps...>()));
       }
     }
 

@@ -25,11 +25,52 @@
 #ifndef SQLITE3PPEXT_H
 #define SQLITE3PPEXT_H
 
+#include <cstddef>
 #include <map>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+
 #include "sqlite3pp.h"
 
 namespace sqlite3pp
 {
+
+  template<size_t N>
+  struct Apply {
+    template<typename F, typename T, typename... A>
+    static inline auto apply(F&& f, T&& t, A&&... a)
+      -> decltype(Apply<N-1>::apply(std::forward<F>(f),
+                                    std::forward<T>(t),
+                                    std::get<N-1>(std::forward<T>(t)),
+                                    std::forward<A>(a)...))
+    {
+      return Apply<N-1>::apply(std::forward<F>(f),
+                               std::forward<T>(t),
+                               std::get<N-1>(std::forward<T>(t)),
+                               std::forward<A>(a)...);
+    }
+  };
+
+  template<>
+  struct Apply<0> {
+    template<typename F, typename T, typename... A>
+    static inline auto apply(F&& f, T&&, A&&... a)
+      -> decltype(std::forward<F>(f)(std::forward<A>(a)...))
+    {
+      return std::forward<F>(f)(std::forward<A>(a)...);
+    }
+  };
+
+  template<typename F, typename T>
+  inline auto apply(F&& f, T&& t)
+    -> decltype(Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(std::forward<F>(f), std::forward<T>(t)))
+  {
+    return Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(
+      std::forward<F>(f), std::forward<T>(t));
+  }
+
+
   namespace ext
   {
     template<class F>
@@ -97,54 +138,36 @@ namespace sqlite3pp
 
     namespace
     {
-      template <class R>
-      void function0_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        auto f = static_cast<std::function<R ()>*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        c.result((*f)());
-      }
 
-      template <class R, class P1>
-      void function1_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
+      template<size_t N>
+      struct TupleImpl
       {
-        auto f = static_cast<std::function<R (P1)>*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        c.result((*f)(c.context::get<P1>(0)));
-      }
+        template<typename... Ps>
+        static inline void apply(const context& c, std::tuple<Ps...>& t)
+        {
+          std::get<N-1>(t) = c.context::get<typename std::tuple_element<N-1, std::tuple<Ps...>>::type>(N-1);
+          TupleImpl<N-1>::apply(c, t);
+        }
+      };
 
-      template <class R, class P1, class P2>
-      void function2_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
+      template<>
+      struct TupleImpl<0>
       {
-        auto f = static_cast<std::function<R (P1, P2)>*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1)));
-      }
+        template<typename... Ps>
+        static inline void apply(const context& c, std::tuple<Ps...>& t)
+        {
+        }
+      };
 
-      template <class R, class P1, class P2, class P3>
-      void function3_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
+      template <class R, class... Ps>
+      void functionx_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
-        auto f = static_cast<std::function<R (P1, P2, P3)>*>(sqlite3_user_data(ctx));
         context c(ctx, nargs, values);
-        c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2)));
+        auto f = static_cast<std::function<R (Ps...)>*>(sqlite3_user_data(ctx));
+        auto t = std::tuple<Ps...>();
+        TupleImpl<sizeof...(Ps)>::apply(c, t);
+        c.result(apply(*f, t));
       }
-
-      template <class R, class P1, class P2, class P3, class P4>
-      void function4_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        auto f = static_cast<std::function<R (P1, P2, P3, P4)>*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3)));
-      }
-
-      template <class R, class P1, class P2, class P3, class P4, class P5>
-      void function5_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        auto f = static_cast<std::function<R (P1, P2, P3, P4, P5)>*>(sqlite3_user_data(ctx));
-        context c(ctx, nargs, values);
-        c.result((*f)(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3), c.context::get<P5>(4)));
-      }
-
     }
 
 
@@ -164,6 +187,7 @@ namespace sqlite3pp
       }
 
      private:
+
       template <int N, class F>
       struct create_function_impl;
 
@@ -174,7 +198,7 @@ namespace sqlite3pp
           using R = typename FT::return_type;
 
           return sqlite3_create_function(db, name, 0, SQLITE_UTF8, fh,
-                                         function0_impl<R>,
+                                         functionx_impl<R>,
                                          0, 0);
         }
       };
@@ -187,7 +211,7 @@ namespace sqlite3pp
           using P1 = typename FT::template argument<0>::type;
 
           return sqlite3_create_function(db, name, 1, SQLITE_UTF8, fh,
-                                         function1_impl<R, P1>,
+                                         functionx_impl<R, P1>,
                                          0, 0);
         }
       };
@@ -201,7 +225,7 @@ namespace sqlite3pp
           using P2 = typename FT::template argument<1>::type;
 
           return sqlite3_create_function(db, name, 2, SQLITE_UTF8, fh,
-                                         function2_impl<R, P1, P2>,
+                                         functionx_impl<R, P1, P2>,
                                          0, 0);
         }
       };
@@ -216,7 +240,7 @@ namespace sqlite3pp
           using P3 = typename FT::template argument<2>::type;
 
           return sqlite3_create_function(db, name, 3, SQLITE_UTF8, fh,
-                                         function3_impl<R, P1, P2, P3>,
+                                         functionx_impl<R, P1, P2, P3>,
                                          0, 0);
         }
       };
@@ -232,7 +256,7 @@ namespace sqlite3pp
           using P4 = typename FT::template argument<3>::type;
 
           return sqlite3_create_function(db, name, 4, SQLITE_UTF8, fh,
-                                         function4_impl<R, P1, P2, P3, P4>,
+                                         functionx_impl<R, P1, P2, P3, P4>,
                                          0, 0);
         }
       };
@@ -249,7 +273,7 @@ namespace sqlite3pp
           using P5 = typename FT::template argument<4>::type;
 
           return sqlite3_create_function(db, name, 5, SQLITE_UTF8, fh,
-                                         function5_impl<R, P1, P2, P3, P4, P5>,
+                                         functionx_impl<R, P1, P2, P3, P4, P5>,
                                          0, 0);
         }
       };

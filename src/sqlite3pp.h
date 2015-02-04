@@ -40,6 +40,11 @@ namespace sqlite3pp
     class aggregate;
   }
 
+  template <class T>
+  struct convert {
+    using to_int = int;
+  };
+
   class null_type {};
   extern null_type ignore;
 
@@ -213,44 +218,9 @@ namespace sqlite3pp
         return get(idx, T());
       }
 
-      template <class T1>
-      std::tuple<T1> get_columns(int idx1) const {
-        return std::make_tuple(get(idx1, T1()));
-      }
-
-      template <class T1, class T2>
-      std::tuple<T1, T2> get_columns(int idx1, int idx2) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()));
-      }
-
-      template <class T1, class T2, class T3>
-      std::tuple<T1, T2, T3> get_columns(int idx1, int idx2, int idx3) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()));
-      }
-
-      template <class T1, class T2, class T3, class T4>
-      std::tuple<T1, T2, T3, T4> get_columns(int idx1, int idx2, int idx3, int idx4) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()));
-      }
-
-      template <class T1, class T2, class T3, class T4, class T5>
-      std::tuple<T1, T2, T3, T4, T5> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()));
-      }
-
-      template <class T1, class T2, class T3, class T4, class T5, class T6>
-      std::tuple<T1, T2, T3, T4, T5, T6> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()));
-      }
-
-      template <class T1, class T2, class T3, class T4, class T5, class T6, class T7>
-      std::tuple<T1, T2, T3, T4, T5, T6, T7> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()));
-      }
-
-      template <class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
-      std::tuple<T1, T2, T3, T4, T5, T6, T7, T8> get_columns(int idx1, int idx2, int idx3, int idx4, int idx5, int idx6, int idx7, int idx8) const {
-        return std::make_tuple(get(idx1, T1()), get(idx2, T2()), get(idx3, T3()), get(idx4, T4()), get(idx5, T5()), get(idx6, T6()), get(idx7, T7()), get(idx8, T8()));
+      template <class... T>
+      std::tuple<T...> get_columns(typename convert<T>::to_int... idx) const {
+        return std::make_tuple(get(idx, T())...);
       }
 
       getstream getter(int idx = 0);

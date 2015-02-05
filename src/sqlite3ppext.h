@@ -62,9 +62,7 @@ namespace sqlite3pp
 
     class context : noncopyable
     {
-      friend function;
-
-    public:
+     public:
       explicit context(sqlite3_context* ctx, int nargs = 0, sqlite3_value** values = nullptr);
 
       int args_count() const;
@@ -89,6 +87,11 @@ namespace sqlite3pp
       void* aggregate_data(int size);
       int aggregate_count();
 
+      template <class... Ts>
+      std::tuple<Ts...> to_tuple() {
+        return to_tuple_impl(0, *this, std::tuple<Ts...>());
+      }
+
      private:
       int get(int idx, int) const;
       double get(int idx, double) const;
@@ -97,10 +100,6 @@ namespace sqlite3pp
       std::string get(int idx, std::string) const;
       void const* get(int idx, void const*) const;
 
-      template <class... Ts>
-      std::tuple<Ts...> to_tuple() {
-        return to_tuple_impl(0, *this, std::tuple<Ts...>());
-      }
       template<class H, class... Ts>
       static inline std::tuple<H, Ts...> to_tuple_impl(int index, const context& c, std::tuple<H, Ts...>&&)
       {
@@ -188,13 +187,13 @@ namespace sqlite3pp
       struct create_function_impl<R (Ps...)>
       {
         int operator()(sqlite3* db, void* fh, char const* name) {
-          return sqlite3_create_function(db, name, 0, SQLITE_UTF8, fh,
+          return sqlite3_create_function(db, name, sizeof...(Ps), SQLITE_UTF8, fh,
                                          functionx_impl<R, Ps...>,
                                          0, 0);
         }
       };
 
-    private:
+     private:
       sqlite3* db_;
 
       std::map<std::string, pfunction_base> fh_;

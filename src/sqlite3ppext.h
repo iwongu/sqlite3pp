@@ -38,28 +38,6 @@ namespace sqlite3pp
 
   namespace ext
   {
-    template<class F>
-    struct function_traits;
-
-    template<class R, class... Ps>
-    struct function_traits<R(*)(Ps...)> : public function_traits<R(Ps...)>
-    {};
-
-    template<class R, class... Ps>
-    struct function_traits<R(Ps...)>
-    {
-      using return_type = R;
-
-      static constexpr std::size_t arity = sizeof...(Ps);
-
-      template <std::size_t N>
-      struct argument
-      {
-        static_assert(N < arity, "error: invalid parameter index.");
-        using type = typename std::tuple_element<N, std::tuple<Ps...>>::type;
-      };
-    };
-
     class context : noncopyable
     {
      public:

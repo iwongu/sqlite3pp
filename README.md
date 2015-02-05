@@ -1,7 +1,7 @@
 sqlite3pp
 =========
 
-<i>NEWS - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory.</i>
+<i>NEWS - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.</i>
 
 It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
 

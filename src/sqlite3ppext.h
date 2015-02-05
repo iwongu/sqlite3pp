@@ -183,17 +183,12 @@ namespace sqlite3pp
     namespace
     {
       template <class T, class... Ps>
-      void step_(T* t, Ps... ps) {
-        t->step(ps...);
-      }
-
-      template <class T, class... Ps>
       void stepx_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
         context c(ctx, nargs, values);
         T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
         if (c.aggregate_count() == 1) new (t) T;
-        apply(step_<T, Ps...>,
+        apply([](T* t, Ps... ps){t->step(ps...);},
               std::tuple_cat(std::make_tuple(t), c.to_tuple<Ps...>()));
       }
 

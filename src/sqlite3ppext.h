@@ -35,9 +35,47 @@
 
 namespace sqlite3pp
 {
+  namespace
+  {
+    template<size_t N>
+    struct Apply {
+      template<typename F, typename T, typename... A>
+      static inline auto apply(F&& f, T&& t, A&&... a)
+        -> decltype(Apply<N-1>::apply(std::forward<F>(f),
+                                      std::forward<T>(t),
+                                      std::get<N-1>(std::forward<T>(t)),
+                                      std::forward<A>(a)...))
+      {
+        return Apply<N-1>::apply(std::forward<F>(f),
+                                 std::forward<T>(t),
+                                 std::get<N-1>(std::forward<T>(t)),
+                                 std::forward<A>(a)...);
+      }
+    };
+
+    template<>
+    struct Apply<0> {
+      template<typename F, typename T, typename... A>
+      static inline auto apply(F&& f, T&&, A&&... a)
+        -> decltype(std::forward<F>(f)(std::forward<A>(a)...))
+      {
+        return std::forward<F>(f)(std::forward<A>(a)...);
+      }
+    };
+
+    template<typename F, typename T>
+    inline auto apply(F&& f, T&& t)
+      -> decltype(Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(std::forward<F>(f), std::forward<T>(t)))
+    {
+      return Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(
+          std::forward<F>(f), std::forward<T>(t));
+    }
+  }
+
 
   namespace ext
   {
+
     class context : noncopyable
     {
      public:
@@ -97,40 +135,6 @@ namespace sqlite3pp
 
     namespace
     {
-      template<size_t N>
-      struct Apply {
-        template<typename F, typename T, typename... A>
-        static inline auto apply(F&& f, T&& t, A&&... a)
-          -> decltype(Apply<N-1>::apply(std::forward<F>(f),
-                                        std::forward<T>(t),
-                                        std::get<N-1>(std::forward<T>(t)),
-                                        std::forward<A>(a)...))
-        {
-          return Apply<N-1>::apply(std::forward<F>(f),
-                                   std::forward<T>(t),
-                                   std::get<N-1>(std::forward<T>(t)),
-                                   std::forward<A>(a)...);
-        }
-      };
-
-      template<>
-      struct Apply<0> {
-        template<typename F, typename T, typename... A>
-        static inline auto apply(F&& f, T&&, A&&... a)
-          -> decltype(std::forward<F>(f)(std::forward<A>(a)...))
-        {
-          return std::forward<F>(f)(std::forward<A>(a)...);
-        }
-      };
-
-      template<typename F, typename T>
-      inline auto apply(F&& f, T&& t)
-        -> decltype(Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(std::forward<F>(f), std::forward<T>(t)))
-      {
-        return Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(
-            std::forward<F>(f), std::forward<T>(t));
-      }
-
       template <class R, class... Ps>
       void functionx_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
@@ -139,7 +143,6 @@ namespace sqlite3pp
         c.result(apply(*f, c.to_tuple<Ps...>()));
       }
     }
-
 
     class function : noncopyable
     {
@@ -179,58 +182,19 @@ namespace sqlite3pp
 
     namespace
     {
-      template <class T>
-      void step0_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        context c(ctx, nargs, values);
-        T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        if (c.aggregate_count() == 1) new (t) T;
-        t->step();
+      template <class T, class... Ps>
+      void step_(T* t, Ps... ps) {
+        t->step(ps...);
       }
 
-      template <class T, class P1>
-      void step1_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
+      template <class T, class... Ps>
+      void stepx_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       {
         context c(ctx, nargs, values);
         T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
         if (c.aggregate_count() == 1) new (t) T;
-        t->step(c.context::get<P1>(0));
-      }
-
-      template <class T, class P1, class P2>
-      void step2_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        context c(ctx, nargs, values);
-        T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        if (c.aggregate_count() == 1) new (t) T;
-        t->step(c.context::get<P1>(0), c.context::get<P2>(1));
-      }
-
-      template <class T, class P1, class P2, class P3>
-      void step3_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        context c(ctx, nargs, values);
-        T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        if (c.aggregate_count() == 1) new (t) T;
-        t->step(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2));
-      }
-
-      template <class T, class P1, class P2, class P3, class P4>
-      void step4_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        context c(ctx, nargs, values);
-        T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        if (c.aggregate_count() == 1) new (t) T;
-        t->step(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3));
-      }
-
-      template <class T, class P1, class P2, class P3, class P4, class P5>
-      void step5_impl(sqlite3_context* ctx, int nargs, sqlite3_value** values)
-      {
-        context c(ctx, nargs, values);
-        T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        if (c.aggregate_count() == 1) new (t) T;
-        t->step(c.context::get<P1>(0), c.context::get<P2>(1), c.context::get<P3>(2), c.context::get<P4>(3), c.context::get<P5>(4));
+        apply(step_<T, Ps...>,
+              std::tuple_cat(std::make_tuple(t), c.to_tuple<Ps...>()));
       }
 
       template <class T>
@@ -241,7 +205,6 @@ namespace sqlite3pp
         c.result(t->finish());
         t->~T();
       }
-
     }
 
     class aggregate : noncopyable
@@ -254,37 +217,12 @@ namespace sqlite3pp
 
       int create(char const* name, function_handler s, function_handler f, int nargs = 1);
 
-      template <class T>
+      template <class T, class... Ps>
       int create(char const* name) {
-        return sqlite3_create_function(db_, name, 0, SQLITE_UTF8, 0, 0, step0_impl<T>, finishN_impl<T>);
+        return sqlite3_create_function(db_, name, sizeof...(Ps), SQLITE_UTF8, 0, 0, stepx_impl<T, Ps...>, finishN_impl<T>);
       }
 
-      template <class T, class P1>
-      int create(char const* name) {
-        return sqlite3_create_function(db_, name, 1, SQLITE_UTF8, 0, 0, step1_impl<T, P1>, finishN_impl<T>);
-      }
-
-      template <class T, class P1, class P2>
-      int create(char const* name) {
-        return sqlite3_create_function(db_, name, 2, SQLITE_UTF8, 0, 0, step2_impl<T, P1, P2>, finishN_impl<T>);
-      }
-
-      template <class T, class P1, class P2, class P3>
-      int create(char const* name) {
-        return sqlite3_create_function(db_, name, 3, SQLITE_UTF8, 0, 0, step3_impl<T, P1, P2, P3>, finishN_impl<T>);
-      }
-
-      template <class T, class P1, class P2, class P3, class P4>
-      int create(char const* name) {
-        return sqlite3_create_function(db_, name, 4, SQLITE_UTF8, 0, 0, step4_impl<T, P1, P2, P3, P4>, finishN_impl<T>);
-      }
-
-      template <class T, class P1, class P2, class P3, class P4, class P5>
-      int create(char const* name) {
-        return sqlite3_create_function(db_, name, 5, SQLITE_UTF8, 0, 0, step5_impl<T, P1, P2, P3, P4, P5>, finishN_impl<T>);
-      }
-
-     private:
+    private:
       sqlite3* db_;
 
       std::map<std::string, std::pair<pfunction_base, pfunction_base> > ah_;

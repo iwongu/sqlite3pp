@@ -41,22 +41,22 @@ namespace sqlite3pp
     template<class F>
     struct function_traits;
 
-    template<class R, class... Args>
-    struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)>
+    template<class R, class... Ps>
+    struct function_traits<R(*)(Ps...)> : public function_traits<R(Ps...)>
     {};
 
-    template<class R, class... Args>
-    struct function_traits<R(Args...)>
+    template<class R, class... Ps>
+    struct function_traits<R(Ps...)>
     {
       using return_type = R;
 
-      static constexpr std::size_t arity = sizeof...(Args);
+      static constexpr std::size_t arity = sizeof...(Ps);
 
       template <std::size_t N>
       struct argument
       {
         static_assert(N < arity, "error: invalid parameter index.");
-        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+        using type = typename std::tuple_element<N, std::tuple<Ps...>>::type;
       };
     };
 
@@ -176,102 +176,25 @@ namespace sqlite3pp
 
       template <class F> int create(char const* name, std::function<F> h) {
         fh_[name] = std::shared_ptr<void>(new std::function<F>(h));
-        return create_function_impl<function_traits<F>::arity, F>()(db_, fh_[name].get(), name);
+        return create_function_impl<F>()(db_, fh_[name].get(), name);
       }
 
      private:
 
-      template <int N, class F>
+      template<class R, class... Ps>
       struct create_function_impl;
 
-      template <class F>
-      struct create_function_impl<0, F> {
+      template<class R, class... Ps>
+      struct create_function_impl<R (Ps...)>
+      {
         int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-
           return sqlite3_create_function(db, name, 0, SQLITE_UTF8, fh,
-                                         functionx_impl<R>,
+                                         functionx_impl<R, Ps...>,
                                          0, 0);
         }
       };
 
-      template <class F>
-      struct create_function_impl<1, F> {
-        int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-          using P1 = typename FT::template argument<0>::type;
-
-          return sqlite3_create_function(db, name, 1, SQLITE_UTF8, fh,
-                                         functionx_impl<R, P1>,
-                                         0, 0);
-        }
-      };
-
-      template <class F>
-      struct create_function_impl<2, F> {
-        int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-          using P1 = typename FT::template argument<0>::type;
-          using P2 = typename FT::template argument<1>::type;
-
-          return sqlite3_create_function(db, name, 2, SQLITE_UTF8, fh,
-                                         functionx_impl<R, P1, P2>,
-                                         0, 0);
-        }
-      };
-
-      template <class F>
-      struct create_function_impl<3, F> {
-        int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-          using P1 = typename FT::template argument<0>::type;
-          using P2 = typename FT::template argument<1>::type;
-          using P3 = typename FT::template argument<2>::type;
-
-          return sqlite3_create_function(db, name, 3, SQLITE_UTF8, fh,
-                                         functionx_impl<R, P1, P2, P3>,
-                                         0, 0);
-        }
-      };
-
-      template <class F>
-      struct create_function_impl<4, F> {
-        int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-          using P1 = typename FT::template argument<0>::type;
-          using P2 = typename FT::template argument<1>::type;
-          using P3 = typename FT::template argument<2>::type;
-          using P4 = typename FT::template argument<3>::type;
-
-          return sqlite3_create_function(db, name, 4, SQLITE_UTF8, fh,
-                                         functionx_impl<R, P1, P2, P3, P4>,
-                                         0, 0);
-        }
-      };
-
-      template <class F>
-      struct create_function_impl<5, F> {
-        int operator()(sqlite3* db, void* fh, char const* name) {
-          using FT = function_traits<F>;
-          using R = typename FT::return_type;
-          using P1 = typename FT::template argument<0>::type;
-          using P2 = typename FT::template argument<1>::type;
-          using P3 = typename FT::template argument<2>::type;
-          using P4 = typename FT::template argument<3>::type;
-          using P5 = typename FT::template argument<4>::type;
-
-          return sqlite3_create_function(db, name, 5, SQLITE_UTF8, fh,
-                                         functionx_impl<R, P1, P2, P3, P4, P5>,
-                                         0, 0);
-        }
-      };
-
-     private:
+    private:
       sqlite3* db_;
 
       std::map<std::string, pfunction_base> fh_;

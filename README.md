@@ -290,6 +290,7 @@ sqlite3pp::query qry(
 * http://www.sqlite.org/
 * https://code.google.com/p/sqlite3pp/ 
 * http://ideathinking.com/2015/02/using-variadic-templates-with-different-parameter-types.html
+* http://ideathinking.com/2015/02/using-variadic-templates-with-function-calls-using-tuple.html
 * [c-of-day-43-sqlite3-c-wrapper-1](http://idea-thinking.blogspot.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html) (Korean)
 * [c-of-day-44-sqlite3-c-wrapper-2](http://idea-thinking.blogspot.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html) (Korean)
 * [c-of-day-45-sqlite3-c-wrapper-3](http://idea-thinking.blogspot.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html) (Korean)

@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <map>
 #include <tuple>
+#include <memory>
 #include <type_traits>
 #include <utility>
 

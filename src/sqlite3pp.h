@@ -27,10 +27,11 @@
 
 #include <functional>
 #include <iterator>
-#include <sqlite3.h>
+#include "sqlite3.h"
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <mutex>
 
 namespace sqlite3pp
 {
@@ -58,6 +59,8 @@ namespace sqlite3pp
     noncopyable& operator=(noncopyable const&) = delete;
   };
 
+  int enable_shared_cache(bool fenable);
+
   class database : noncopyable
   {
     friend class statement;
@@ -72,17 +75,23 @@ namespace sqlite3pp
     using update_handler = std::function<void (int, char const*, char const*, long long int)>;
     using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
-    explicit database(char const* dbname = nullptr);
+    explicit database(char const* dbname = nullptr, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
     ~database();
 
-    int connect(char const* dbname);
-    int connect_v2(char const* dbname, int flags, char const* vfs = nullptr);
+    void enable_foreign_keys( bool enable = true );
+    void enable_triggers( bool enable = true );
+    void enable_extended_result_codes( bool enable = true );
+
+    int connect(char const* dbname, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
     int disconnect();
 
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
 
     long long int last_insert_rowid() const;
+
+    //the number of database rows that were changed or inserted or deleted by the most recently completed SQL statement
+    int changes() const;
 
     int error_code() const;
     char const* error_msg() const;
@@ -92,13 +101,19 @@ namespace sqlite3pp
 
     int set_busy_timeout(int ms);
 
+    int load( const char *filename );
+    int save( const char *filename );
+
     void set_busy_handler(busy_handler h);
     void set_commit_handler(commit_handler h);
     void set_rollback_handler(rollback_handler h);
     void set_update_handler(update_handler h);
     void set_authorize_handler(authorize_handler h);
 
+    std::mutex m_transactionMutex;
+
    private:
+    int loadOrSaveDb( const char *zFilename, bool isSave );
     sqlite3* db_;
 
     busy_handler bh_;
@@ -107,6 +122,12 @@ namespace sqlite3pp
     update_handler uh_;
     authorize_handler ah_;
   };
+
+  #if defined(_MSC_VER) && (_MSC_VER <= 1800)
+    #define SQLITE3PP_NOEXCEPT_FALSE
+  #else
+    #define SQLITE3PP_NOEXCEPT_FALSE noexcept(false)
+  #endif
 
   class database_error : public std::runtime_error
   {
@@ -174,6 +195,7 @@ namespace sqlite3pp
      private:
       command& cmd_;
       int idx_;
+      bindstream& operator = ( const bindstream& ) = delete;
     };
 
     explicit command(database& db, char const* stmt = nullptr);
@@ -224,7 +246,7 @@ namespace sqlite3pp
       }
 
       getstream getter(int idx = 0);
-
+      inline rows* operator -> (){ return this; }
      private:
       int get(int idx, int) const;
       double get(int idx, double) const;
@@ -251,6 +273,7 @@ namespace sqlite3pp
       query_iterator& operator++();
 
       value_type operator*() const;
+      value_type operator->() const;
 
      private:
       query* cmd_;
@@ -274,7 +297,7 @@ namespace sqlite3pp
   {
    public:
     explicit transaction(database& db, bool fcommit = false, bool freserve = false);
-    ~transaction();
+    ~transaction() SQLITE3PP_NOEXCEPT_FALSE;
 
     int commit();
     int rollback();
@@ -282,6 +305,7 @@ namespace sqlite3pp
    private:
     database* db_;
     bool fcommit_;
+    std::unique_lock< std::mutex > lock_;
   };
 
 } // namespace sqlite3pp

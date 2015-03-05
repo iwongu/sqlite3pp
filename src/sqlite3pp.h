@@ -72,17 +72,20 @@ namespace sqlite3pp
     using update_handler = std::function<void (int, char const*, char const*, long long int)>;
     using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
-    explicit database(char const* dbname = nullptr);
+    explicit database(char const* dbname = nullptr, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
     ~database();
 
-    int connect(char const* dbname);
-    int connect_v2(char const* dbname, int flags, char const* vfs = nullptr);
+    int connect(char const* dbname, int flags, const char* vfs = nullptr);
     int disconnect();
 
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
 
     long long int last_insert_rowid() const;
+
+    int enable_foreign_keys(bool enable = true);
+    int enable_triggers(bool enable = true);
+    int enable_extended_result_codes(bool enable = true);
 
     int error_code() const;
     char const* error_msg() const;

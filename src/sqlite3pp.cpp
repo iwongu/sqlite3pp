@@ -22,7 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <cstring>
 #include <memory>
+
 #include "sqlite3pp.h"
 
 namespace sqlite3pp
@@ -64,10 +66,10 @@ namespace sqlite3pp
 
   } // namespace
 
-  database::database(char const* dbname) : db_(0)
+  database::database(char const* dbname, int flags, char const* vfs) : db_(nullptr)
   {
     if (dbname) {
-      auto rc = connect(dbname);
+      auto rc = connect(dbname, flags, vfs);
       if (rc != SQLITE_OK)
         throw database_error("can't connect database");
     }
@@ -78,14 +80,7 @@ namespace sqlite3pp
     disconnect();
   }
 
-  int database::connect(char const* dbname)
-  {
-    disconnect();
-
-    return sqlite3_open(dbname, &db_);
-  }
-
-  int database::connect_v2(char const* dbname, int flags, char const* vfs)
+  int database::connect(char const* dbname, int flags, char const* vfs)
   {
     disconnect();
 
@@ -148,6 +143,21 @@ namespace sqlite3pp
     return sqlite3_last_insert_rowid(db_);
   }
 
+  int database::enable_foreign_keys(bool enable)
+  {
+    return sqlite3_db_config(db_, SQLITE_DBCONFIG_ENABLE_FKEY, enable ? 1 : 0, nullptr);
+  }
+
+  int database::enable_triggers(bool enable)
+  {
+    return sqlite3_db_config(db_, SQLITE_DBCONFIG_ENABLE_TRIGGER, enable ? 1 : 0, nullptr);
+  }
+
+  int database::enable_extended_result_codes(bool enable)
+  {
+    return sqlite3_extended_result_codes(db_, enable ? 1 : 0);
+  }
+
   int database::error_code() const
   {
     return sqlite3_errcode(db_);
@@ -206,7 +216,7 @@ namespace sqlite3pp
 
   int statement::prepare_impl(char const* stmt)
   {
-    return sqlite3_prepare(db_.db_, stmt, strlen(stmt), &stmt_, &tail_);
+    return sqlite3_prepare(db_.db_, stmt, std::strlen(stmt), &stmt_, &tail_);
   }
 
   int statement::finish()
@@ -253,7 +263,7 @@ namespace sqlite3pp
 
   int statement::bind(int idx, char const* value, bool fstatic)
   {
-    return sqlite3_bind_text(stmt_, idx, value, strlen(value), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+    return sqlite3_bind_text(stmt_, idx, value, std::strlen(value), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
   }
 
   int statement::bind(int idx, void const* value, int n, bool fstatic)
@@ -341,7 +351,7 @@ namespace sqlite3pp
 
     char const* sql = tail_;
 
-    while (strlen(sql) > 0) { // sqlite3_complete() is broken.
+    while (std::strlen(sql) > 0) { // sqlite3_complete() is broken.
       sqlite3_stmt* old_stmt = stmt_;
 
       if ((rc = prepare_impl(sql)) != SQLITE_OK) return rc;

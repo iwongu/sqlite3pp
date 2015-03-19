@@ -100,12 +100,12 @@ namespace sqlite3pp
 
   int database::attach(char const* dbname, char const* name)
   {
-    return executef("ATTACH '%s' AS '%s'", dbname, name);
+    return executef("ATTACH '%q' AS '%q'", dbname, name);
   }
 
   int database::detach(char const* name)
   {
-    return executef("DETACH '%s'", name);
+    return executef("DETACH '%q'", name);
   }
 
   void database::set_busy_handler(busy_handler h)

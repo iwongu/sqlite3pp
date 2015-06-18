@@ -26,6 +26,7 @@
 #include <memory>
 
 #include "sqlite3pp.h"
+#include "./trim_strlen.h"
 
 namespace sqlite3pp
 {
@@ -240,7 +241,7 @@ namespace sqlite3pp
 
   int statement::prepare_impl(char const* stmt)
   {
-    return sqlite3_prepare(db_.db_, stmt, std::strlen(stmt), &stmt_, &tail_);
+    return sqlite3_prepare(db_.db_, stmt, details::trim_strlen(std::strlen(stmt)), &stmt_, &tail_);
   }
 
   int statement::finish()
@@ -287,7 +288,7 @@ namespace sqlite3pp
 
   int statement::bind(int idx, char const* value, bool fstatic)
   {
-    return sqlite3_bind_text(stmt_, idx, value, std::strlen(value), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+    return sqlite3_bind_text(stmt_, idx, value, details::trim_strlen(std::strlen(value)), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
   }
 
   int statement::bind(int idx, void const* value, int n, bool fstatic)

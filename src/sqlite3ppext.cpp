@@ -25,6 +25,7 @@
 #include <cstring>
 
 #include "sqlite3ppext.h"
+#include "./trim_strlen.h"
 
 namespace sqlite3pp
 {
@@ -134,7 +135,7 @@ namespace sqlite3pp
 
     void context::result(char const* value, bool fstatic)
     {
-      sqlite3_result_text(ctx_, value, std::strlen(value), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+      sqlite3_result_text(ctx_, value, details::trim_strlen(std::strlen(value)), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
     }
 
     void context::result(void const* value, int n, bool fstatic)
@@ -159,7 +160,7 @@ namespace sqlite3pp
 
     void context::result_error(char const* msg)
     {
-      sqlite3_result_error(ctx_, msg, std::strlen(msg));
+      sqlite3_result_error(ctx_, msg, details::trim_strlen(std::strlen(msg)));
     }
 
     void* context::aggregate_data(int size)

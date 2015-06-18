@@ -422,7 +422,7 @@ namespace sqlite3pp
     return sqlite3_column_blob(stmt_, idx);
   }
 
-  null_type query::rows::get(int idx, null_type) const
+  null_type query::rows::get(int /* idx */, null_type) const
   {
     return ignore;
   }

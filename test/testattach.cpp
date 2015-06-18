@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("foods.db");

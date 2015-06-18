@@ -36,7 +36,7 @@ std::string test6(std::string const& s1, std::string const& s2, std::string cons
   return s1 + s2 + s3;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("test.db");

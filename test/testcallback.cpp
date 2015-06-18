@@ -16,7 +16,7 @@ struct handler
   int cnt_;
 };
 
-int handle_authorize(int evcode, char const* p1, char const* p2, char const* dbname, char const* tvname) {
+int handle_authorize(int evcode, char const* /*p1*/, char const* /*p2*/, char const* /*dbname*/, char const* /*tvname*/) {
   cout << "handle_authorize(" << evcode << ")" << endl;
   return 0;
 }
@@ -28,7 +28,7 @@ struct rollback_handler
   }
 };
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("test.db");

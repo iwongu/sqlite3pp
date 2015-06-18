@@ -123,7 +123,7 @@ namespace sqlite3pp
         auto h = std::make_tuple(c.context::get<H>(index));
         return std::tuple_cat(h, to_tuple_impl(++index, c, std::tuple<Ts...>()));
       }
-      static inline std::tuple<> to_tuple_impl(int index, const context& c, std::tuple<>&&)
+      static inline std::tuple<> to_tuple_impl(int /*index*/, const context& /*c*/, std::tuple<>&&)
       {
         return std::tuple<>();
       }

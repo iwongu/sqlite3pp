@@ -54,6 +54,9 @@ namespace sqlite3pp
     noncopyable() = default;
     ~noncopyable() = default;
 
+    noncopyable(noncopyable&&) = default;
+    noncopyable& operator=(noncopyable&&) = default;
+
     noncopyable(noncopyable const&) = delete;
     noncopyable& operator=(noncopyable const&) = delete;
   };
@@ -73,6 +76,10 @@ namespace sqlite3pp
     using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
     explicit database(char const* dbname = nullptr, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
+
+    database(database&& db);
+    database& operator=(database&& db);
+
     ~database();
 
     int connect(char const* dbname, int flags, const char* vfs = nullptr);

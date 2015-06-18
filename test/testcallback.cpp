@@ -6,6 +6,8 @@
 using namespace std;
 using namespace std::placeholders;
 
+int handle_authorize(int evcode, char const* p1, char const* p2, char const* dbname, char const* tvname);
+
 struct handler
 {
   handler() : cnt_(0) {}

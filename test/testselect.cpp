@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
       qry.reset();
 
       for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
-	int id;
+	int id = 0;
 	std::string name, phone;
 	(*i).getter() >> sqlite3pp::ignore >> name >> phone;
 	cout << id << "\t" << name << "\t" << phone << endl;

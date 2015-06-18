@@ -67,7 +67,7 @@ struct strcnt
     s_ += s;
   }
   int finish() {
-    return s_.size();
+    return static_cast<int>(s_.size());
   }
   string s_;
 };

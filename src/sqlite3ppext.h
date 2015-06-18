@@ -189,7 +189,7 @@ namespace sqlite3pp
         context c(ctx, nargs, values);
         T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
         if (c.aggregate_count() == 1) new (t) T;
-        apply([](T* t, Ps... ps){t->step(ps...);},
+        apply([](T* tt, Ps... ps){tt->step(ps...);},
               std::tuple_cat(std::make_tuple(t), c.to_tuple<Ps...>()));
       }
 

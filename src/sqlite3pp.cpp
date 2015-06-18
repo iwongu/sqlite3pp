@@ -75,6 +75,31 @@ namespace sqlite3pp
     }
   }
 
+  database::database(database&& db)
+    : db_(std::move(db.db_))
+    , bh_(std::move(db.bh_))
+    , ch_(std::move(db.ch_))
+    , rh_(std::move(db.rh_))
+    , uh_(std::move(db.uh_))
+    , ah_(std::move(db.ah_))
+  {
+    db.db_ = nullptr;
+  }
+
+  database& database::operator=(database&& db)
+  {
+    db_ = std::move(db.db_);
+    db.db_ = nullptr;
+
+    bh_ = std::move(db.bh_);
+    ch_ = std::move(db.ch_);
+    rh_ = std::move(db.rh_);
+    uh_ = std::move(db.uh_);
+    ah_ = std::move(db.ah_);
+
+    return *this;
+  }
+
   database::~database()
   {
     disconnect();

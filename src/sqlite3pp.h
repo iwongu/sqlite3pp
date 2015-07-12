@@ -68,8 +68,8 @@ namespace sqlite3pp
     noncopyable() = default;
     ~noncopyable() = default;
 
-    noncopyable(noncopyable&&) = default;
-    noncopyable& operator=(noncopyable&&) = default;
+    noncopyable(noncopyable&&);
+    noncopyable& operator=(noncopyable&&);
 
     noncopyable(noncopyable const&) = delete;
     noncopyable& operator=(noncopyable const&) = delete;

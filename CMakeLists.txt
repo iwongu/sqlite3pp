@@ -72,7 +72,7 @@ add_executable(testselect ${PROJECT_SOURCE_DIR}/test/testselect.cpp)
 target_link_libraries(testselect sqlite3pp sqlite3)
 set_property(TARGET testselect PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-install(TARGETS sqlite3pp DESTINATION lib)
+install(TARGETS sqlite3pp DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES "${PROJECT_SOURCE_DIR}/src/sqlite3pp.h" DESTINATION include)
 install(FILES "${PROJECT_SOURCE_DIR}/src/sqlite3ppext.h" DESTINATION include)
 install(FILES "${PROJECT_SOURCE_DIR}/README.md" DESTINATION share/doc/${PROJECT_NAME})
@@ -82,5 +82,5 @@ if(PKG_CONFIG_FOUND)
 	configure_file(
 		"${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.pc.in"
 		"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc")
-	install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
+	install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()

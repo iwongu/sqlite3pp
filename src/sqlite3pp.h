@@ -152,7 +152,7 @@ namespace sqlite3pp
 
    protected:
     explicit statement(database& db, char const* stmt = nullptr);
-    ~statement();
+    ~statement() noexcept(false);
 
     int prepare_impl(char const* stmt);
     int finish_impl(sqlite3_stmt* stmt);
@@ -284,7 +284,7 @@ namespace sqlite3pp
   {
    public:
     explicit transaction(database& db, bool fcommit = false, bool freserve = false);
-    ~transaction();
+    ~transaction() noexcept(false);
 
     int commit();
     int rollback();

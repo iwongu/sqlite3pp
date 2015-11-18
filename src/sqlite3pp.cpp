@@ -222,7 +222,7 @@ namespace sqlite3pp
     }
   }
 
-  statement::~statement()
+  statement::~statement() noexcept(false)
   {
     auto rc = finish();
     if (rc != SQLITE_OK)
@@ -526,7 +526,7 @@ namespace sqlite3pp
     db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
   }
 
-  transaction::~transaction()
+  transaction::~transaction() noexcept(false)
   {
     if (db_) {
       auto rc = db_->execute(fcommit_ ? "COMMIT" : "ROLLBACK");

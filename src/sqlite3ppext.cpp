@@ -132,14 +132,14 @@ namespace sqlite3pp
       result(value.c_str(), false);
     }
 
-    void context::result(char const* value, bool fstatic)
+    void context::result(char const* value, bool fcopy)
     {
-      sqlite3_result_text(ctx_, value, std::strlen(value), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+      sqlite3_result_text(ctx_, value, std::strlen(value), fcopy ? SQLITE_TRANSIENT : SQLITE_STATIC);
     }
 
-    void context::result(void const* value, int n, bool fstatic)
+    void context::result(void const* value, int n, bool fcopy)
     {
-      sqlite3_result_blob(ctx_, value, n, fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+      sqlite3_result_blob(ctx_, value, n, fcopy ? SQLITE_TRANSIENT : SQLITE_STATIC );
     }
 
     void context::result()

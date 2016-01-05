@@ -94,8 +94,8 @@ namespace sqlite3pp
       void result(double value);
       void result(long long int value);
       void result(std::string const& value);
-      void result(char const* value, bool fstatic = true);
-      void result(void const* value, int n, bool fstatic = true);
+      void result(char const* value, bool fcopy);
+      void result(void const* value, int n, bool fcopy);
       void result();
       void result(null_type);
       void result_copy(int idx);

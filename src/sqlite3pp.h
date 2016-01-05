@@ -134,18 +134,18 @@ namespace sqlite3pp
     int bind(int idx, int value);
     int bind(int idx, double value);
     int bind(int idx, long long int value);
-    int bind(int idx, char const* value, bool fstatic = true);
-    int bind(int idx, void const* value, int n, bool fstatic = true);
-    int bind(int idx, std::string const& value, bool fstatic = true);
+    int bind(int idx, char const* value, bool fcopy);
+    int bind(int idx, void const* value, int n, bool fcopy);
+    int bind(int idx, std::string const& value, bool fcopy);
     int bind(int idx);
     int bind(int idx, null_type);
 
     int bind(char const* name, int value);
     int bind(char const* name, double value);
     int bind(char const* name, long long int value);
-    int bind(char const* name, char const* value, bool fstatic = true);
-    int bind(char const* name, void const* value, int n, bool fstatic = true);
-    int bind(char const* name, std::string const& value, bool fstatic = true);
+    int bind(char const* name, char const* value, bool fcopy);
+    int bind(char const* name, void const* value, int n, bool fcopy);
+    int bind(char const* name, std::string const& value, bool fcopy);
     int bind(char const* name);
     int bind(char const* name, null_type);
 

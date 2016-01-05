@@ -295,6 +295,11 @@ namespace sqlite3pp
     return sqlite3_bind_blob(stmt_, idx, value, n, fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
   }
 
+  int statement::bind(int idx, std::string const& value, bool fstatic)
+  {
+    return sqlite3_bind_text(stmt_, idx, value.c_str(), value.size(), fstatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+  }
+
   int statement::bind(int idx)
   {
     return sqlite3_bind_null(stmt_, idx);
@@ -333,6 +338,12 @@ namespace sqlite3pp
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, n, fstatic);
+  }
+
+  int statement::bind(char const* name, std::string const& value, bool fstatic)
+  {
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
+    return bind(idx, value, fstatic);
   }
 
   int statement::bind(char const* name)

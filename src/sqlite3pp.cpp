@@ -285,19 +285,19 @@ namespace sqlite3pp
     return sqlite3_bind_int64(stmt_, idx, value);
   }
 
-  int statement::bind(int idx, char const* value, bool fcopy)
+  int statement::bind(int idx, char const* value, copy_semantic fcopy)
   {
-    return sqlite3_bind_text(stmt_, idx, value, std::strlen(value), fcopy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+    return sqlite3_bind_text(stmt_, idx, value, std::strlen(value), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
-  int statement::bind(int idx, void const* value, int n, bool fcopy)
+  int statement::bind(int idx, void const* value, int n, copy_semantic fcopy)
   {
-    return sqlite3_bind_blob(stmt_, idx, value, n, fcopy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+    return sqlite3_bind_blob(stmt_, idx, value, n, fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
-  int statement::bind(int idx, std::string const& value, bool fcopy)
+  int statement::bind(int idx, std::string const& value, copy_semantic fcopy)
   {
-    return sqlite3_bind_text(stmt_, idx, value.c_str(), value.size(), fcopy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+    return sqlite3_bind_text(stmt_, idx, value.c_str(), value.size(), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
   int statement::bind(int idx)
@@ -328,19 +328,19 @@ namespace sqlite3pp
     return bind(idx, value);
   }
 
-  int statement::bind(char const* name, char const* value, bool fcopy)
+  int statement::bind(char const* name, char const* value, copy_semantic fcopy)
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, fcopy);
   }
 
-  int statement::bind(char const* name, void const* value, int n, bool fcopy)
+  int statement::bind(char const* name, void const* value, int n, copy_semantic fcopy)
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, n, fcopy);
   }
 
-  int statement::bind(char const* name, std::string const& value, bool fcopy)
+  int statement::bind(char const* name, std::string const& value, copy_semantic fcopy)
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value, fcopy);

@@ -125,6 +125,8 @@ namespace sqlite3pp
     explicit database_error(database& db);
   };
 
+  enum copy_semantic { copy, nocopy };
+
   class statement : noncopyable
   {
    public:
@@ -134,18 +136,18 @@ namespace sqlite3pp
     int bind(int idx, int value);
     int bind(int idx, double value);
     int bind(int idx, long long int value);
-    int bind(int idx, char const* value, bool fcopy);
-    int bind(int idx, void const* value, int n, bool fcopy);
-    int bind(int idx, std::string const& value, bool fcopy);
+    int bind(int idx, char const* value, copy_semantic fcopy);
+    int bind(int idx, void const* value, int n, copy_semantic fcopy);
+    int bind(int idx, std::string const& value, copy_semantic fcopy);
     int bind(int idx);
     int bind(int idx, null_type);
 
     int bind(char const* name, int value);
     int bind(char const* name, double value);
     int bind(char const* name, long long int value);
-    int bind(char const* name, char const* value, bool fcopy);
-    int bind(char const* name, void const* value, int n, bool fcopy);
-    int bind(char const* name, std::string const& value, bool fcopy);
+    int bind(char const* name, char const* value, copy_semantic fcopy);
+    int bind(char const* name, void const* value, int n, copy_semantic fcopy);
+    int bind(char const* name, std::string const& value, copy_semantic fcopy);
     int bind(char const* name);
     int bind(char const* name, null_type);
 

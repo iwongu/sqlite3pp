@@ -51,8 +51,8 @@ int main()
 
       sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
 
-      cout << cmd.bind(1, "BBBB") << endl;
-      cout << cmd.bind(2, "1234") << endl;
+      cout << cmd.bind(1, "BBBB", sqlite3pp::copy) << endl;
+      cout << cmd.bind(2, "1234", sqlite3pp::copy) << endl;
       cout << cmd.execute() << endl;
 
       cout << cmd.reset() << endl;
@@ -69,7 +69,7 @@ int main()
 
       sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (:name, :name)");
 
-      cout << cmd.bind(":name", "DDDD") << endl;
+      cout << cmd.bind(":name", "DDDD", sqlite3pp::copy) << endl;
 
       cout << cmd.execute() << endl;
     }

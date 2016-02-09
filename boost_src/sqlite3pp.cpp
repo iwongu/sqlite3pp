@@ -483,7 +483,6 @@ namespace sqlite3pp
 
   transaction::transaction(database& db, bool fcommit, bool freserve) : db_(&db), fcommit_(fcommit)
   {
-    //http://www.sqlite.org/rescode.html#busy
     int rc = db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
     if (rc != SQLITE_OK)
       throw database_error(*db_);

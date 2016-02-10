@@ -33,8 +33,8 @@ cmd.execute();
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
-cmd.bind(100, "Mike");
-cmd.bind(101, "555-1234");
+cmd.bind(100, "Mike", sqlite3pp::nocopy);
+cmd.bind(101, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
@@ -100,7 +100,7 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 ## attach
 
 ```cpp
-sqlite3pp::database db("foods.db");b
+sqlite3pp::database db("foods.db");
 db.attach("test.db", "test");
 
 sqlite3pp::query qry(
@@ -289,8 +289,8 @@ sqlite3pp::query qry(
 # See also
 * http://www.sqlite.org/
 * https://code.google.com/p/sqlite3pp/ 
-* http://ideathinking.com/2015/02/using-variadic-templates-with-different-parameter-types.html
-* http://ideathinking.com/2015/02/using-variadic-templates-with-function-calls-using-tuple.html
+* http://iwongu.github.com/2015/02/using-variadic-templates-with-different-parameter-types.html
+* http://iwongu.github.com/2015/02/using-variadic-templates-with-function-calls-using-tuple.html
 * [c-of-day-43-sqlite3-c-wrapper-1](http://idea-thinking.blogspot.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html) (Korean)
 * [c-of-day-44-sqlite3-c-wrapper-2](http://idea-thinking.blogspot.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html) (Korean)
 * [c-of-day-45-sqlite3-c-wrapper-3](http://idea-thinking.blogspot.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html) (Korean)

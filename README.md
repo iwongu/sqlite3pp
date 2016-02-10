@@ -1,11 +1,13 @@
 sqlite3pp
 =========
 
-<i>NEWS - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.</i>
+> #### NEWS
+> ###### Feb 4, 2015 - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.
+> ###### Feb 9, 2016 - I just added header only version of sqlite3pp in headeronly_src directory. It's still in beta, which means no one is trying it in fields yet. Please try it and report bugs if you find any.
 
-It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
+This library makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
 
-With ext::function class, it's also easy to write the sqlite3's functions and aggregations.
+With ext::function class, it's also easy to use the sqlite3's functions and aggregations in C++.
 
 # Usage
 

@@ -25,8 +25,8 @@ cmd.execute();
 
 ```cpp
 sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
-cmd.bind(1, "Mike", sqlite3pp::copy);
-cmd.bind(2, "555-1234", sqlite3pp::copy);
+cmd.bind(1, "Mike", sqlite3pp::nocopy);
+cmd.bind(2, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
@@ -41,8 +41,8 @@ cmd.execute();
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-cmd.bind(":user", "Mike", sqlite3pp::copy);
-cmd.bind(":phone", "555-1234", sqlite3pp::copy);
+cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
@@ -53,8 +53,8 @@ sqlite3pp::transaction xct(db);
 {
   sqlite3pp::command cmd(
     db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-  cmd.bind(":user", "Mike", sqlite3pp::copy);
-  cmd.bind(":phone", "555-1234", sqlite3pp::copy);
+  cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+  cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
   cmd.execute();
 }
 xct.rollback();

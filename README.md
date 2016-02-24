@@ -1,6 +1,6 @@
 > #### NEWS
-> ###### Feb 4, 2015 - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.
 > ###### Feb 9, 2016 - I just added header only version of sqlite3pp in headeronly_src directory. It's still in beta, which means no one is trying it in fields yet. Please try it and report bugs if you find any.
+> ###### Feb 4, 2015 - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.
 
 sqlite3pp
 =========

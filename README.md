@@ -1,4 +1,5 @@
 > #### NEWS
+> ###### Feb 26, 2016 - I added the version number in sqlite3pp.h so that users can check against in their code. The current version is 1.0.0 and it can be accessed using git tag "v1.0.0".<br>And now, the recommeded files are ones in headeronly_src directory.
 > ###### Feb 9, 2016 - I just added header only version of sqlite3pp in headeronly_src directory. It's still in beta, which means no one is trying it in fields yet. Please try it and report bugs if you find any.
 > ###### Feb 4, 2015 - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.
 

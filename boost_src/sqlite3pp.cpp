@@ -97,7 +97,9 @@ namespace sqlite3pp
     int rc = SQLITE_OK;
     if (db_) {
       rc = sqlite3_close(db_);
-      db_ = 0;
+      if (rc == SQLITE_OK) {
+        db_ = 0;
+      }
     }
 
     return rc;

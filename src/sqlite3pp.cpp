@@ -116,7 +116,9 @@ namespace sqlite3pp
     auto rc = SQLITE_OK;
     if (db_) {
       rc = sqlite3_close(db_);
-      db_ = nullptr;
+      if (rc == SQLITE_OK) {
+        db_ = nullptr;
+      }
     }
 
     return rc;

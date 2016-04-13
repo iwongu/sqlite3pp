@@ -88,7 +88,7 @@ namespace sqlite3pp
       return sqlite3_value_double(values_[idx]);
     }
 
-    inline long long int context::get(int idx, long long int) const
+    inline sqlite3_int64 context::get(int idx, sqlite3_int64) const
     {
       return sqlite3_value_int64(values_[idx]);
     }
@@ -120,7 +120,7 @@ namespace sqlite3pp
       sqlite3_result_double(ctx_, value);
     }
 
-    inline void context::result(long long int value)
+    inline void context::result(sqlite3_int64 value)
     {
       sqlite3_result_int64(ctx_, value);
     }

@@ -50,7 +50,7 @@ namespace sqlite3pp
       (*h)();
     }
 
-    void update_hook_impl(void* p, int opcode, char const* dbname, char const* tablename, long long int rowid)
+    void update_hook_impl(void* p, int opcode, char const* dbname, char const* tablename, sqlite3_int64 rowid)
     {
       database::update_handler* h = static_cast<database::update_handler*>(p);
       (*h)(opcode, dbname, tablename, rowid);
@@ -145,7 +145,7 @@ namespace sqlite3pp
     sqlite3_set_authorizer(db_, ah_ ? authorizer_impl : 0, &ah_);
   }
 
-  long long int database::last_insert_rowid() const
+  sqlite3_int64 database::last_insert_rowid() const
   {
     return sqlite3_last_insert_rowid(db_);
   }
@@ -248,7 +248,7 @@ namespace sqlite3pp
     return sqlite3_bind_double(stmt_, idx, value);
   }
 
-  int statement::bind(int idx, long long int value)
+  int statement::bind(int idx, sqlite3_int64 value)
   {
     return sqlite3_bind_int64(stmt_, idx, value);
   }
@@ -285,7 +285,7 @@ namespace sqlite3pp
     return bind(idx, value);
   }
 
-  int statement::bind(char const* name, long long int value)
+  int statement::bind(char const* name, sqlite3_int64 value)
   {
     int idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value);
@@ -394,7 +394,7 @@ namespace sqlite3pp
     return sqlite3_column_double(stmt_, idx);
   }
 
-  long long int query::rows::get(int idx, long long int) const
+  sqlite3_int64 query::rows::get(int idx, sqlite3_int64) const
   {
     return sqlite3_column_int64(stmt_, idx);
   }

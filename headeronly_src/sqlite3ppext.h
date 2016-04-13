@@ -92,7 +92,7 @@ namespace sqlite3pp
 
       void result(int value);
       void result(double value);
-      void result(long long int value);
+      void result(sqlite3_int64 value);
       void result(std::string const& value);
       void result(char const* value, bool fcopy);
       void result(void const* value, int n, bool fcopy);
@@ -112,7 +112,7 @@ namespace sqlite3pp
      private:
       int get(int idx, int) const;
       double get(int idx, double) const;
-      long long int get(int idx, long long int) const;
+      sqlite3_int64 get(int idx, sqlite3_int64) const;
       char const* get(int idx, char const*) const;
       std::string get(int idx, std::string) const;
       void const* get(int idx, void const*) const;

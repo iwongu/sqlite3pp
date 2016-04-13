@@ -10,7 +10,7 @@ struct handler
 {
   handler() : cnt_(0) {}
 
-  void handle_update(int opcode, char const* dbname, char const* tablename, long long int rowid) {
+  void handle_update(int opcode, char const* dbname, char const* tablename, sqlite3_int64 rowid) {
     cout << "handle_update(" << opcode << ", " << dbname << ", " << tablename << ", " << rowid << ") - " << cnt_++ << endl;
   }
   int cnt_;

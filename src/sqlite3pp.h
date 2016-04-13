@@ -77,7 +77,7 @@ namespace sqlite3pp
     using busy_handler = std::function<int (int)>;
     using commit_handler = std::function<int ()>;
     using rollback_handler = std::function<void ()>;
-    using update_handler = std::function<void (int, char const*, char const*, long long int)>;
+    using update_handler = std::function<void (int, char const*, char const*, sqlite3_int64)>;
     using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
 
     explicit database(char const* dbname = nullptr, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
@@ -93,7 +93,7 @@ namespace sqlite3pp
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
 
-    long long int last_insert_rowid() const;
+    sqlite3_int64 last_insert_rowid() const;
 
     int enable_foreign_keys(bool enable = true);
     int enable_triggers(bool enable = true);
@@ -140,7 +140,7 @@ namespace sqlite3pp
 
     int bind(int idx, int value);
     int bind(int idx, double value);
-    int bind(int idx, long long int value);
+    int bind(int idx, sqlite3_int64 value);
     int bind(int idx, char const* value, copy_semantic fcopy);
     int bind(int idx, void const* value, int n, copy_semantic fcopy);
     int bind(int idx, std::string const& value, copy_semantic fcopy);
@@ -149,7 +149,7 @@ namespace sqlite3pp
 
     int bind(char const* name, int value);
     int bind(char const* name, double value);
-    int bind(char const* name, long long int value);
+    int bind(char const* name, sqlite3_int64 value);
     int bind(char const* name, char const* value, copy_semantic fcopy);
     int bind(char const* name, void const* value, int n, copy_semantic fcopy);
     int bind(char const* name, std::string const& value, copy_semantic fcopy);
@@ -263,7 +263,7 @@ namespace sqlite3pp
      private:
       int get(int idx, int) const;
       double get(int idx, double) const;
-      long long int get(int idx, long long int) const;
+      sqlite3_int64 get(int idx, sqlite3_int64) const;
       char const* get(int idx, char const*) const;
       std::string get(int idx, std::string) const;
       void const* get(int idx, void const*) const;

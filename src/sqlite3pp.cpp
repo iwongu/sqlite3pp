@@ -184,9 +184,19 @@ namespace sqlite3pp
     return sqlite3_extended_result_codes(db_, enable ? 1 : 0);
   }
 
+  int database::changes() const
+  {
+    return sqlite3_changes(db_);
+  }
+
   int database::error_code() const
   {
     return sqlite3_errcode(db_);
+  }
+
+  int database::extended_error_code() const
+  {
+    return sqlite3_extended_errcode(db_);
   }
 
   char const* database::error_msg() const

@@ -99,7 +99,10 @@ namespace sqlite3pp
     int enable_triggers(bool enable = true);
     int enable_extended_result_codes(bool enable = true);
 
+    int changes() const;
+
     int error_code() const;
+    int extended_error_code() const;
     char const* error_msg() const;
 
     int execute(char const* sql);

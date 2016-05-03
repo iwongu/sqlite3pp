@@ -232,11 +232,11 @@ namespace sqlite3pp
     }
   }
 
-  inline statement::~statement() noexcept(false)
+  inline statement::~statement()
   {
-    auto rc = finish();
-    if (rc != SQLITE_OK)
-      throw database_error(db_);
+    // finish() can return error. If you want to check the error, call
+    // finish() explicitly before this object is destructed.
+    finish();
   }
 
   inline int statement::prepare(char const* stmt)
@@ -550,12 +550,13 @@ namespace sqlite3pp
       throw database_error(*db_);
   }
 
-  inline transaction::~transaction() noexcept(false)
+  inline transaction::~transaction()
   {
     if (db_) {
-      auto rc = db_->execute(fcommit_ ? "COMMIT" : "ROLLBACK");
-      if (rc != SQLITE_OK)
-	throw database_error(*db_);
+      // execute() can return error. If you want to check the error,
+      // call commit() or rollback() explicitly before this object is
+      // destructed.
+      db_->execute(fcommit_ ? "COMMIT" : "ROLLBACK");
     }
   }
 

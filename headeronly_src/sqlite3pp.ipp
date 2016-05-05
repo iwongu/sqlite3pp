@@ -24,6 +24,7 @@
 
 #include <cstring>
 #include <memory>
+#include <cassert>
 
 namespace sqlite3pp
 {
@@ -250,7 +251,9 @@ namespace sqlite3pp
 
   inline int statement::prepare_impl(char const* stmt)
   {
-    return sqlite3_prepare(db_.db_, stmt, std::strlen(stmt), &stmt_, &tail_);
+	auto ln = std::strlen(stmt);
+	assert(ln <= static_cast<size_t>(sqlite3_limit(db_.db_, SQLITE_LIMIT_SQL_LENGTH, -1)));
+    return sqlite3_prepare(db_.db_, stmt, static_cast<int>(ln), &stmt_, &tail_);
   }
 
   inline int statement::finish()
@@ -297,7 +300,9 @@ namespace sqlite3pp
 
   inline int statement::bind(int idx, char const* value, copy_semantic fcopy)
   {
-    return sqlite3_bind_text(stmt_, idx, value, std::strlen(value), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+    auto ln = std::strlen(value);
+    assert(ln <= static_cast<size_t>(sqlite3_limit(db_.db_, SQLITE_LIMIT_SQL_LENGTH, -1))); // is this is right limit to check here?
+    return sqlite3_bind_text(stmt_, idx, value, static_cast<int>(ln), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
   inline int statement::bind(int idx, void const* value, int n, copy_semantic fcopy)
@@ -307,7 +312,9 @@ namespace sqlite3pp
 
   inline int statement::bind(int idx, std::string const& value, copy_semantic fcopy)
   {
-    return sqlite3_bind_text(stmt_, idx, value.c_str(), value.size(), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+    auto ln = value.length();
+    assert(ln <= static_cast<size_t>(sqlite3_limit(db_.db_, SQLITE_LIMIT_SQL_LENGTH, -1))); // is this is right limit to check here?
+    return sqlite3_bind_text(stmt_, idx, value.c_str(), static_cast<int>(ln), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
   inline int statement::bind(int idx)

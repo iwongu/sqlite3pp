@@ -118,6 +118,22 @@ sqlite3pp::query qry(
   "SELECT epi.* FROM episodes epi, test.contacts con WHERE epi.id = con.id");
 ```
 
+## backup
+
+```cpp
+sqlite3pp::database db("test.db");
+sqlite3pp::database backupdb("backup.db");
+
+db.backup(
+  backupdb,
+  [](int pagecount, int remaining, int rc) {
+    cout << pagecount << "/" << remaining << endl;
+    if (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED) {
+      // sleep or do nothing.
+    }
+  });
+```
+
 ## callback
 
 ```cpp

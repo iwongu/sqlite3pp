@@ -132,6 +132,26 @@ namespace sqlite3pp
     return executef("DETACH '%q'", name);
   }
 
+  inline int database::backup(database& destdb, backup_handler h)
+  {
+    return backup("main", destdb, "main", h, 5);
+  }
+
+  inline int database::backup(char const* dbname, database& destdb, char const* destdbname, backup_handler h, int step_page)
+  {
+    sqlite3_backup* bkup = sqlite3_backup_init(destdb.db_, destdbname, db_, dbname);
+    if (!bkup) {
+      return error_code();
+    }
+    auto rc = SQLITE_OK;
+    do {
+      rc = sqlite3_backup_step(bkup, step_page);
+      h(sqlite3_backup_remaining(bkup), sqlite3_backup_pagecount(bkup), rc);
+    } while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
+    sqlite3_backup_finish(bkup);
+    return rc;
+  }
+
   inline void database::set_busy_handler(busy_handler h)
   {
     bh_ = h;

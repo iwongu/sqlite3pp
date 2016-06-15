@@ -78,6 +78,7 @@ namespace sqlite3pp
     using rollback_handler = std::function<void ()>;
     using update_handler = std::function<void (int, char const*, char const*, long long int)>;
     using authorize_handler = std::function<int (int, char const*, char const*, char const*, char const*)>;
+    using backup_handler = std::function<void (int, int, int)>;
 
     explicit database(char const* dbname = nullptr, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, const char* vfs = nullptr);
 
@@ -91,6 +92,9 @@ namespace sqlite3pp
 
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
+
+    int backup(database& destdb, backup_handler h = {});
+    int backup(char const* dbname, database& destdb, char const* destdbname, backup_handler h, int step_page = 5);
 
     long long int last_insert_rowid() const;
 

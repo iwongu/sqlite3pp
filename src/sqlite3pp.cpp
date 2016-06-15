@@ -136,7 +136,7 @@ namespace sqlite3pp
 
   int database::backup(database& destdb, backup_handler h)
   {
-    return backup("main", destdb, "main", h, 5);
+    return backup("main", destdb, "main", h);
   }
 
   int database::backup(char const* dbname, database& destdb, char const* destdbname, backup_handler h, int step_page)

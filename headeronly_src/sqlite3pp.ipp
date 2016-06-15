@@ -146,7 +146,9 @@ namespace sqlite3pp
     auto rc = SQLITE_OK;
     do {
       rc = sqlite3_backup_step(bkup, step_page);
-      h(sqlite3_backup_remaining(bkup), sqlite3_backup_pagecount(bkup), rc);
+      if (h) {
+	h(sqlite3_backup_remaining(bkup), sqlite3_backup_pagecount(bkup), rc);
+      }
     } while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
     sqlite3_backup_finish(bkup);
     return rc;

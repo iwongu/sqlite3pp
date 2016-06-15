@@ -93,7 +93,7 @@ namespace sqlite3pp
     int attach(char const* dbname, char const* name);
     int detach(char const* name);
 
-    int backup(database& destdb, backup_handler h);
+    int backup(database& destdb, backup_handler h = {});
     int backup(char const* dbname, database& destdb, char const* destdbname, backup_handler h, int step_page = 5);
 
     long long int last_insert_rowid() const;

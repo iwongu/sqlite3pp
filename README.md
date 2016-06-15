@@ -124,6 +124,10 @@ sqlite3pp::query qry(
 sqlite3pp::database db("test.db");
 sqlite3pp::database backupdb("backup.db");
 
+db.backup(backupdb);
+```
+
+```cpp
 db.backup(
   backupdb,
   [](int pagecount, int remaining, int rc) {

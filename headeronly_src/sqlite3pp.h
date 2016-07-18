@@ -30,6 +30,7 @@
 #define SQLITE3PP_VERSION_MINOR 0
 #define SQLITE3PP_VERSION_PATCH 0
 
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <sqlite3.h>
@@ -145,6 +146,7 @@ namespace sqlite3pp
     int finish();
 
     int bind(int idx, int value);
+    int bind(int idx, int64_t value);
     int bind(int idx, double value);
     int bind(int idx, long long int value);
     int bind(int idx, char const* value, copy_semantic fcopy);
@@ -154,6 +156,7 @@ namespace sqlite3pp
     int bind(int idx, null_type);
 
     int bind(char const* name, int value);
+    int bind(char const* name, int64_t value);
     int bind(char const* name, double value);
     int bind(char const* name, long long int value);
     int bind(char const* name, char const* value, copy_semantic fcopy);
@@ -268,6 +271,7 @@ namespace sqlite3pp
 
      private:
       int get(int idx, int) const;
+      int64_t get(int idx, int64_t) const;
       double get(int idx, double) const;
       long long int get(int idx, long long int) const;
       char const* get(int idx, char const*) const;

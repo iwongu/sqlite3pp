@@ -83,6 +83,11 @@ namespace sqlite3pp
       return sqlite3_value_int(values_[idx]);
     }
 
+    inline int64_t context::get(int idx, int64_t) const
+    {
+      return sqlite3_value_int64(values_[idx]);
+    }
+
     inline double context::get(int idx, double) const
     {
       return sqlite3_value_double(values_[idx]);

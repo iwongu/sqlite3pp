@@ -26,6 +26,7 @@
 #define SQLITE3PPEXT_H
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <tuple>
@@ -91,6 +92,7 @@ namespace sqlite3pp
       }
 
       void result(int value);
+      void result(int64_t value);
       void result(double value);
       void result(long long int value);
       void result(std::string const& value);
@@ -111,6 +113,7 @@ namespace sqlite3pp
 
      private:
       int get(int idx, int) const;
+      int64_t get(int idx, int64_t) const;
       double get(int idx, double) const;
       long long int get(int idx, long long int) const;
       char const* get(int idx, char const*) const;

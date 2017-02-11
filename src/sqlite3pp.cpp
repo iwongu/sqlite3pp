@@ -309,6 +309,11 @@ namespace sqlite3pp
     return sqlite3_bind_int(stmt_, idx, value);
   }
 
+  int statement::bind(int idx, int64_t value)
+  {
+    return sqlite3_bind_int64(stmt_, idx, value);
+  }
+
   int statement::bind(int idx, double value)
   {
     return sqlite3_bind_double(stmt_, idx, value);
@@ -345,6 +350,12 @@ namespace sqlite3pp
   }
 
   int statement::bind(char const* name, int value)
+  {
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
+    return bind(idx, value);
+  }
+
+  int statement::bind(char const* name, int64_t value)
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
     return bind(idx, value);
@@ -464,6 +475,11 @@ namespace sqlite3pp
   int query::rows::get(int idx, int) const
   {
     return sqlite3_column_int(stmt_, idx);
+  }
+
+  int query::rows::get(int idx, int64_t) const
+  {
+    return sqlite3_column_int64(stmt_, idx);
   }
 
   double query::rows::get(int idx, double) const

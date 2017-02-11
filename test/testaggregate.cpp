@@ -5,12 +5,18 @@
 
 using namespace std;
 
+void step0(sqlite3pp::ext::context& c);
+void finalize0(sqlite3pp::ext::context& c);
+void step1(sqlite3pp::ext::context& c);
+void finalize1(sqlite3pp::ext::context& c);
+
 void step0(sqlite3pp::ext::context& c)
 {
   int* sum = (int*) c.aggregate_data(sizeof(int));
 
   *sum += c.get<int>(0);
 }
+
 void finalize0(sqlite3pp::ext::context& c)
 {
   int* sum = (int*) c.aggregate_data(sizeof(int));
@@ -27,6 +33,7 @@ void step1(sqlite3pp::ext::context& c)
 
   *sum += c.get<string>(0);
 }
+
 void finalize1(sqlite3pp::ext::context& c)
 {
   string* sum = (string*) c.aggregate_data(sizeof(string));

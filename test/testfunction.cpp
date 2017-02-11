@@ -5,6 +5,13 @@
 
 using namespace std;
 
+int test0();
+void test1(sqlite3pp::ext::context& ctx);
+void test2(sqlite3pp::ext::context& ctx);
+void test3(sqlite3pp::ext::context& ctx);
+std::string test5(std::string const& value);
+std::string test6(std::string const& s1, std::string const& s2, std::string const& s3);
+
 int test0()
 {
   return 100;

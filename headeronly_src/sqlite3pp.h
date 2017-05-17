@@ -58,8 +58,10 @@ namespace sqlite3pp
     noncopyable() = default;
     ~noncopyable() = default;
 
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
     noncopyable(noncopyable&&) = default;
     noncopyable& operator=(noncopyable&&) = default;
+#endif
 
     noncopyable(noncopyable const&) = delete;
     noncopyable& operator=(noncopyable const&) = delete;

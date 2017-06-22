@@ -28,11 +28,18 @@
 #define SQLITE3PP_VERSION "1.0.6"
 #define SQLITE3PP_VERSION_MAJOR 1
 #define SQLITE3PP_VERSION_MINOR 0
-#define SQLITE3PP_VERSION_PATCH 6
+#define SQLITE3PP_VERSION_PATCH 7
 
 #include <functional>
 #include <iterator>
+
+#ifdef COMPILE_SQLITE_EXTENSIONS_AS_LOADABLE_MODULE
+#include <sqlite3ext.h> /* Do not use <sqlite3.h>! */
+SQLITE_EXTENSION_INIT1
+#elif
 #include <sqlite3.h>
+#endif
+
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -84,6 +91,7 @@ namespace sqlite3pp
 
     database(database&& db);
     database& operator=(database&& db);
+    database& operator=(sqlite3* _db);
 
     ~database();
 

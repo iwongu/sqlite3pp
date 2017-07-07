@@ -59,6 +59,9 @@ namespace sqlite3pp
 
     } // namespace
 
+    database borrow(sqlite3* pdb) {
+      return database(pdb);
+    }
 
     context::context(sqlite3_context* ctx, int nargs, sqlite3_value** values)
       : ctx_(ctx), nargs_(nargs), values_(values)

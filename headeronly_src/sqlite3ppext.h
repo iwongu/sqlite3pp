@@ -76,6 +76,9 @@ namespace sqlite3pp
 
   namespace ext
   {
+    database borrow(sqlite3* pdb) {
+      return database(pdb);
+    }
 
     class context : noncopyable
     {

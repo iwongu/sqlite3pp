@@ -64,7 +64,7 @@ namespace sqlite3pp
 
   } // namespace
 
-  inline database::database(char const* dbname, int flags, char const* vfs) : db_(nullptr)
+  inline database::database(char const* dbname, int flags, char const* vfs) : db_(nullptr), borrowing_(false)
   {
     if (dbname) {
       auto rc = connect(dbname, flags, vfs);
@@ -74,6 +74,7 @@ namespace sqlite3pp
   }
 
   inline database::database(database&& db) : db_(std::move(db.db_)),
+    borrowing_(std::move(db.borrowing_)),
     bh_(std::move(db.bh_)),
     ch_(std::move(db.ch_)),
     rh_(std::move(db.rh_)),
@@ -87,6 +88,7 @@ namespace sqlite3pp
   {
     db_ = std::move(db.db_);
     db.db_ = nullptr;
+    borrowing_ = std::move(db.borrowing_);
 
     bh_ = std::move(db.bh_);
     ch_ = std::move(db.ch_);
@@ -99,12 +101,16 @@ namespace sqlite3pp
 
   inline database::~database()
   {
-    disconnect();
+    if (!borrowing_) {
+      disconnect();
+    }
   }
 
   inline int database::connect(char const* dbname, int flags, char const* vfs)
   {
-    disconnect();
+    if (!borrowing_) {
+      disconnect();
+    }
 
     return sqlite3_open_v2(dbname, &db_, flags, vfs);
   }

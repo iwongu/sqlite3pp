@@ -32,10 +32,16 @@
 
 #include <functional>
 #include <iterator>
-#include <sqlite3.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+
+#ifdef SQLITE3PP_LOADABLE_EXTENSION
+#include <sqlite3ext.h>
+SQLITE_EXTENSION_INIT1
+#else
+#  include <sqlite3.h>
+#endif
 
 namespace sqlite3pp
 {

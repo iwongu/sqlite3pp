@@ -25,24 +25,33 @@
 #ifndef SQLITE3PP_H
 #define SQLITE3PP_H
 
-#define SQLITE3PP_VERSION "1.0.6"
+#define SQLITE3PP_VERSION "1.0.7"
 #define SQLITE3PP_VERSION_MAJOR 1
 #define SQLITE3PP_VERSION_MINOR 0
-#define SQLITE3PP_VERSION_PATCH 6
+#define SQLITE3PP_VERSION_PATCH 7
 
 #include <functional>
 #include <iterator>
-#include <sqlite3.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 
+#ifdef SQLITE3PP_LOADABLE_EXTENSION
+#include <sqlite3ext.h>
+SQLITE_EXTENSION_INIT1
+#else
+#  include <sqlite3.h>
+#endif
+
 namespace sqlite3pp
 {
+  class database;
+
   namespace ext
   {
     class function;
     class aggregate;
+    database borrow(sqlite3* pdb);
   }
 
   template <class T>
@@ -71,6 +80,7 @@ namespace sqlite3pp
     friend class database_error;
     friend class ext::function;
     friend class ext::aggregate;
+    friend database ext::borrow(sqlite3* pdb);
 
    public:
     using busy_handler = std::function<int (int)>;
@@ -120,7 +130,11 @@ namespace sqlite3pp
     void set_authorize_handler(authorize_handler h);
 
    private:
+    database(sqlite3* pdb) : db_(pdb), borrowing_(true) {}
+
+   private:
     sqlite3* db_;
+    bool borrowing_;
 
     busy_handler bh_;
     commit_handler ch_;

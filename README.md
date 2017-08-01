@@ -314,6 +314,22 @@ sqlite3pp::query qry(
   "FROM foods");
 ```
 
+## loadable extension
+
+```cpp
+#define SQLITE3PP_LOADABLE_EXTENSION
+#include <sqlite3ppext.h>
+
+int sqlite3_extension_init(
+  sqlite3 *pdb,
+  char **pzErrMsg,
+  const sqlite3_api_routines *pApi) {
+  SQLITE_EXTENSION_INIT2(pApi);
+  sqlite3pp:database db(sqlite3pp::ext::borrow(pdb));
+  // pdb is not closed since db just borrows it.
+}
+
+```
 
 
 # See also

@@ -35,7 +35,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <Link>
-      <AdditionalDependencies>sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libsqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>

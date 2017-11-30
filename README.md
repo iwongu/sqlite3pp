@@ -48,6 +48,16 @@ cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
+```cpp
+sqlite3pp::command cmd(
+  db,
+  "INSERT INTO contacts (name, phone) VALUES (:user, '555-0000');"
+  "INSERT INTO contacts (name, phone) VALUES (:user, '555-1111');"
+  "INSERT INTO contacts (name, phone) VALUES (:user, '555-2222')");
+cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+cmd.execute_all();
+```
+
 ## transaction
 
 ```cpp

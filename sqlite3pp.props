@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir)obj\$(TargetPlatform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LibDir>$(SolutionDir)lib\$(TargetPlatform)\$(Configuration)\</LibDir>
+    <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">$(SolutionDir)lib\$(TargetPlatform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(ConfigurationType)'=='Application'">$(SolutionDir)bin\$(TargetPlatform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks Condition="'$(Configuration)'=='Debug'">EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FavorSizeOrSpeed Condition="'$(Configuration)'=='Release'">Size</FavorSizeOrSpeed>
+      <InlineFunctionExpansion Condition="'$(Configuration)'=='Release'">AnySuitable</InlineFunctionExpansion>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
+      <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">_DEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">NDEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName Condition="'$(ConfigurationType)'=='StaticLibrary'">$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreadedDLL</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>libsqlite3.lib;icuuc.lib;icudt.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+    <ResourceCompile>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

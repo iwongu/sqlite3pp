@@ -295,9 +295,12 @@ namespace sqlite3pp
     };
 
     class query_iterator
-      : public std::iterator<std::input_iterator_tag, rows>
     {
      public:
+      using iterator_category = std::input_iterator_tag;
+      using value_type = rows;
+      using difference_type = void;
+
       query_iterator();
       explicit query_iterator(query* cmd);
 
@@ -312,7 +315,7 @@ namespace sqlite3pp
       query* cmd_;
       int rc_;
     };
-
+    
     explicit query(database& db, char const* stmt = nullptr);
 
     int column_count() const;

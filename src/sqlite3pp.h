@@ -298,7 +298,7 @@ namespace sqlite3pp
     public:
       using iterator_category = std::input_iterator_tag;
       using value_type = rows;
-      using difference_type = void;
+      using difference_type = rows&;
 
       query_iterator();
       explicit query_iterator(query* cmd);

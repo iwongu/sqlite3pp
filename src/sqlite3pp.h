@@ -25,13 +25,12 @@
 #ifndef SQLITE3PP_H
 #define SQLITE3PP_H
 
-#define SQLITE3PP_VERSION "1.0.8"
+#define SQLITE3PP_VERSION "1.0.9"
 #define SQLITE3PP_VERSION_MAJOR 1
 #define SQLITE3PP_VERSION_MINOR 0
-#define SQLITE3PP_VERSION_PATCH 8
+#define SQLITE3PP_VERSION_PATCH 9
 
 #include <functional>
-#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -296,7 +295,7 @@ namespace sqlite3pp
 
     class query_iterator
     {
-     public:
+    public:
       using iterator_category = std::input_iterator_tag;
       using value_type = rows;
       using difference_type = void;
@@ -311,7 +310,7 @@ namespace sqlite3pp
 
       value_type operator*() const;
 
-     private:
+    private:
       query* cmd_;
       int rc_;
     };

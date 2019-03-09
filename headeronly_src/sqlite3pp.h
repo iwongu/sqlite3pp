@@ -25,13 +25,12 @@
 #ifndef SQLITE3PP_H
 #define SQLITE3PP_H
 
-#define SQLITE3PP_VERSION "1.0.8"
+#define SQLITE3PP_VERSION "1.0.9"
 #define SQLITE3PP_VERSION_MAJOR 1
 #define SQLITE3PP_VERSION_MINOR 0
-#define SQLITE3PP_VERSION_PATCH 8
+#define SQLITE3PP_VERSION_PATCH 9
 
 #include <functional>
-#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <tuple>

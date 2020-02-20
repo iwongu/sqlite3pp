@@ -492,7 +492,7 @@ namespace sqlite3pp
 
   std::string query::rows::get(int idx, std::string) const
   {
-    return get(idx, (char const*)0);
+    return std::string(get(idx, (char const*)0), column_bytes(idx));
   }
 
   void const* query::rows::get(int idx, void const*) const

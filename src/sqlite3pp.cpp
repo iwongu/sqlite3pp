@@ -343,6 +343,11 @@ namespace sqlite3pp
     return sqlite3_bind_text(stmt_, idx, value.c_str(), value.size(), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
   }
 
+  int statement::bind_blob(int idx, std::string const& value, copy_semantic fcopy)
+  {
+    return sqlite3_bind_blob(stmt_, idx, value.data(), value.size(), fcopy == copy ? SQLITE_TRANSIENT : SQLITE_STATIC );
+  }
+
   int statement::bind(int idx)
   {
     return sqlite3_bind_null(stmt_, idx);

@@ -1,4 +1,5 @@
-// $ g++ testdb.cpp -I ../headeronly_src -lsqlite3 --std=c++11 -Wno-deprecated;
+// $ g++ testdb.cpp -I ../headeronly_src -lsqlite3 --std=c++11
+// $ g++ testdb.cpp -I ../headeronly_src -lsqlite3 --std=c++17
 
 #include <iostream>
 #include "sqlite3pp.h"
@@ -220,6 +221,15 @@ void test_aggregate() {
   expect_eq(16, (*iter).get<int>(1));
 }
 
+void test_invalid_path() {
+  try {
+    sqlite3pp::database db("/test/invalid/path");
+  } catch (sqlite3pp::database_error& e) {
+    return;
+  }
+  expect_true(false);
+}
+
 int main()
 {
   test_insert_execute();
@@ -236,6 +246,7 @@ int main()
   test_function();
   test_function_args();
   test_aggregate();
+  test_invalid_path();
 }
 
 sqlite3pp::database contacts_db() {

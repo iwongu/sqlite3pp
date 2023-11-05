@@ -65,7 +65,7 @@ namespace sqlite3pp
     };
 
     template<typename F, typename T>
-    inline auto apply(F&& f, T&& t)
+    inline auto apply_f(F&& f, T&& t)
       -> decltype(Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(std::forward<F>(f), std::forward<T>(t)))
     {
       return Apply<std::tuple_size<typename std::decay<T>::type>::value>::apply(
@@ -144,7 +144,7 @@ namespace sqlite3pp
       {
         context c(ctx, nargs, values);
         auto f = static_cast<std::function<R (Ps...)>*>(sqlite3_user_data(ctx));
-        c.result(apply(*f, c.to_tuple<Ps...>()));
+        c.result(apply_f(*f, c.to_tuple<Ps...>()));
       }
     }
 
@@ -192,7 +192,7 @@ namespace sqlite3pp
         context c(ctx, nargs, values);
         T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
         if (c.aggregate_count() == 1) new (t) T;
-        apply([](T* tt, Ps... ps){tt->step(ps...);},
+        apply_f([](T* tt, Ps... ps){tt->step(ps...);},
               std::tuple_cat(std::make_tuple(t), c.to_tuple<Ps...>()));
       }
 

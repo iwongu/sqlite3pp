@@ -294,9 +294,14 @@ namespace sqlite3pp
     };
 
     class query_iterator
-      : public std::iterator<std::input_iterator_tag, rows>
     {
      public:
+      typedef std::input_iterator_tag iterator_category;
+      typedef rows value_type;
+      typedef std::ptrdiff_t difference_type;
+      typedef rows* pointer;
+      typedef rows& reference;
+
       query_iterator();
       explicit query_iterator(query* cmd);
 

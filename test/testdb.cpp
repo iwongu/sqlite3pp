@@ -112,6 +112,40 @@ void test_insert_bind3() {
   expect_eq("555-1234", phone);
 }
 
+void test_insert_bind_null() {
+  auto db = contacts_db();
+  sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone, address) VALUES (:user, :phone, :address)");
+  cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+  cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
+  cmd.bind(":address");
+  expect_eq(0, cmd.execute());
+
+  sqlite3pp::query qry(db, "SELECT name, phone, address FROM contacts");
+  auto iter = qry.begin();
+  string name, phone;
+  const char* address = nullptr;
+  (*iter).getter() >> name >> phone >> address;
+  expect_eq("Mike", name);
+  expect_eq("555-1234", phone);
+  expect_eq(nullptr, address);
+}
+
+void test_insert_binder_null() {
+  auto db = contacts_db();
+  sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone, address) VALUES (?, ?, ?)");
+  cmd.binder() << "Mike" << "555-1234" << nullptr;
+  expect_eq(0, cmd.execute());
+
+  sqlite3pp::query qry(db, "SELECT name, phone, address FROM contacts");
+  auto iter = qry.begin();
+  string name, phone;
+  const char* address = nullptr;
+  (*iter).getter() >> name >> phone >> address;
+  expect_eq("Mike", name);
+  expect_eq("555-1234", phone);
+  expect_eq(nullptr, address);
+}
+
 void test_query_columns() {
   auto db = contacts_db();
   expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
@@ -260,6 +294,8 @@ int main()
   test_insert_bind1();
   test_insert_bind2();
   test_insert_bind3();
+  test_insert_bind_null();
+  test_insert_binder_null();
   test_query_columns();
   test_query_get();
   test_query_tie();
@@ -279,6 +315,7 @@ sqlite3pp::database contacts_db() {
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       phone TEXT NOT NULL,
+      address TEXT,
       UNIQUE(name, phone)
     );
   )""");

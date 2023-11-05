@@ -313,6 +313,11 @@ namespace sqlite3pp
     return sqlite3_reset(stmt_);
   }
 
+  inline int statement::clear_bindings()
+  {
+    return sqlite3_clear_bindings(stmt_);
+  }
+
   inline int statement::bind(int idx, int value)
   {
     return sqlite3_bind_int(stmt_, idx, value);

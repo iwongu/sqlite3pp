@@ -20,14 +20,14 @@ using namespace std;
     if(!((arg1) == (arg2))) {		  \
       std::cout << "Unexpected false at " \
 		<< __FILE__ << ", " << __LINE__ << ", " << __func__ << ": " \
-		<< #arg1 << ", " << #arg2 << "(" << arg2 << ")" << std::endl; } \
+		<< #arg1 << ", " << #arg2 << std::endl; }		\
   } while(false);
 
 sqlite3pp::database contacts_db();
 
 void test_insert_execute() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT name, phone FROM contacts");
   auto iter = qry.begin();
@@ -45,7 +45,7 @@ void test_insert_execute_all() {
     "INSERT INTO contacts (name, phone) VALUES (:user, '555-1111');"
     "INSERT INTO contacts (name, phone) VALUES (:user, '555-2222')");
   cmd.bind(":user", "Mike", sqlite3pp::nocopy);
-  cmd.execute_all();
+  expect_eq(0, cmd.execute_all());
 
   sqlite3pp::query qry(db, "SELECT COUNT(*) FROM contacts");
   auto iter = qry.begin();
@@ -57,7 +57,7 @@ void test_insert_binder() {
   auto db = contacts_db();
   sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
   cmd.binder() << "Mike" << "555-1234";
-  cmd.execute();
+  expect_eq(0, cmd.execute());
 
   sqlite3pp::query qry(db, "SELECT name, phone FROM contacts");
   auto iter = qry.begin();
@@ -72,7 +72,7 @@ void test_insert_bind1() {
   sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
   cmd.bind(1, "Mike", sqlite3pp::nocopy);
   cmd.bind(2, "555-1234", sqlite3pp::nocopy);
-  cmd.execute();
+  expect_eq(0, cmd.execute());
 
   sqlite3pp::query qry(db, "SELECT name, phone FROM contacts");
   auto iter = qry.begin();
@@ -87,7 +87,7 @@ void test_insert_bind2() {
   sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
   cmd.bind(100, "Mike", sqlite3pp::nocopy);
   cmd.bind(101, "555-1234", sqlite3pp::nocopy);
-  cmd.execute();
+  expect_eq(0, cmd.execute());
 
   sqlite3pp::query qry(db, "SELECT name, phone FROM contacts");
   auto iter = qry.begin();
@@ -102,7 +102,7 @@ void test_insert_bind3() {
   sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
   cmd.bind(":user", "Mike", sqlite3pp::nocopy);
   cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
-  cmd.execute();
+  expect_eq(0, cmd.execute());
 
   sqlite3pp::query qry(db, "SELECT name, phone FROM contacts");
   auto iter = qry.begin();
@@ -114,7 +114,7 @@ void test_insert_bind3() {
 
 void test_query_columns() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
   expect_eq(3, qry.column_count());
@@ -125,7 +125,7 @@ void test_query_columns() {
 
 void test_query_get() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
   auto iter = qry.begin();
@@ -135,7 +135,7 @@ void test_query_get() {
 
 void test_query_tie() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
   auto iter = qry.begin();
@@ -147,7 +147,7 @@ void test_query_tie() {
 
 void test_query_getter() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
   auto iter = qry.begin();
@@ -159,7 +159,7 @@ void test_query_getter() {
 
 void test_query_iterator() {
   auto db = contacts_db();
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT id, name, phone FROM contacts");
   for (auto row : qry) {
@@ -173,7 +173,7 @@ void test_query_iterator() {
 void test_function() {
   auto db = contacts_db();
   sqlite3pp::ext::function func(db);
-  func.create<int ()>("test_fn", []{return 100;});
+  expect_eq(0, func.create<int ()>("test_fn", []{return 100;}));
 
   sqlite3pp::query qry(db, "SELECT test_fn()");
   auto iter = qry.begin();
@@ -186,7 +186,7 @@ void test_function_args() {
   sqlite3pp::ext::function func(db);
   func.create<string (string)>("test_fn", [](const string& name){return "Hello " + name;});
 
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
 
   sqlite3pp::query qry(db, "SELECT name, test_fn(name) FROM contacts");
   auto iter = qry.begin();
@@ -212,8 +212,8 @@ void test_aggregate() {
   sqlite3pp::ext::aggregate aggr(db);
   aggr.create<strlen_aggr, string>("strlen_aggr");
 
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')");
-  db.execute("INSERT INTO contacts (name, phone) VALUES ('Janette', '555-4321')");
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Mike', '555-1234')"));
+  expect_eq(0, db.execute("INSERT INTO contacts (name, phone) VALUES ('Janette', '555-4321')"));
 
   sqlite3pp::query qry(db, "SELECT strlen_aggr(name), strlen_aggr(phone) FROM contacts");
   auto iter = qry.begin();
@@ -228,6 +228,28 @@ void test_invalid_path() {
     return;
   }
   expect_true(false);
+}
+
+void test_reset() {
+  auto db = contacts_db();
+  sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
+  cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+  cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
+  expect_eq(0, cmd.execute());
+
+  cmd.reset();
+  cmd.bind(":user", "Janette", sqlite3pp::nocopy);
+  expect_eq(0, cmd.execute());
+
+  sqlite3pp::query qry(db, "SELECT COUNT(*) FROM contacts");
+  auto iter = qry.begin();
+  int count = (*iter).get<int>(0);
+  expect_eq(2, count);
+
+  cmd.reset();
+  cmd.clear_bindings();
+  cmd.bind(":user", "Dave", sqlite3pp::nocopy);
+  expect_eq(SQLITE_CONSTRAINT, cmd.execute());
 }
 
 int main()
@@ -247,6 +269,7 @@ int main()
   test_function_args();
   test_aggregate();
   test_invalid_path();
+  test_reset();
 }
 
 sqlite3pp::database contacts_db() {

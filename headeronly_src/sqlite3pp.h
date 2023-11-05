@@ -178,6 +178,7 @@ namespace sqlite3pp
 
     int step();
     int reset();
+    int clear_bindings();
 
    protected:
     explicit statement(database& db, char const* stmt = nullptr);

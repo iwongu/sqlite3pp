@@ -164,6 +164,7 @@ namespace sqlite3pp
     int bind(int idx, char const* value, copy_semantic fcopy);
     int bind(int idx, void const* value, int n, copy_semantic fcopy);
     int bind(int idx, std::string const& value, copy_semantic fcopy);
+    int bind(int idx, char16_t const* value, copy_semantic fcopy);
     int bind(int idx);
     int bind(int idx, null_type);
 
@@ -296,6 +297,7 @@ namespace sqlite3pp
       char const* get(int idx, char const*) const;
       std::string get(int idx, std::string) const;
       void const* get(int idx, void const*) const;
+      char16_t const* get(int idx, char16_t const*) const;
       null_type get(int idx, null_type) const;
 
      private:

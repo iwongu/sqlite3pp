@@ -87,19 +87,28 @@ namespace sqlite3pp
     ah_(std::move(db.ah_))
   {
     db.db_ = nullptr;
+    rebind_handlers();
   }
 
   inline database& database::operator=(database&& db)
   {
-    db_ = std::move(db.db_);
-    db.db_ = nullptr;
-    borrowing_ = std::move(db.borrowing_);
+    if (this != &db) {
+      if (!borrowing_) {
+        disconnect();
+      }
 
-    bh_ = std::move(db.bh_);
-    ch_ = std::move(db.ch_);
-    rh_ = std::move(db.rh_);
-    uh_ = std::move(db.uh_);
-    ah_ = std::move(db.ah_);
+      db_ = std::move(db.db_);
+      db.db_ = nullptr;
+      borrowing_ = std::move(db.borrowing_);
+
+      bh_ = std::move(db.bh_);
+      ch_ = std::move(db.ch_);
+      rh_ = std::move(db.rh_);
+      uh_ = std::move(db.uh_);
+      ah_ = std::move(db.ah_);
+
+      rebind_handlers();
+    }
 
     return *this;
   }
@@ -124,7 +133,7 @@ namespace sqlite3pp
   {
     auto rc = SQLITE_OK;
     if (db_) {
-      rc = sqlite3_close(db_);
+      rc = sqlite3_close_v2(db_);
       if (rc == SQLITE_OK) {
         db_ = nullptr;
       }
@@ -168,31 +177,42 @@ namespace sqlite3pp
   inline void database::set_busy_handler(busy_handler h)
   {
     bh_ = h;
-    sqlite3_busy_handler(db_, bh_ ? busy_handler_impl : 0, &bh_);
+    sqlite3_busy_handler(db_, bh_ ? busy_handler_impl : nullptr, &bh_);
   }
 
   inline void database::set_commit_handler(commit_handler h)
   {
     ch_ = h;
-    sqlite3_commit_hook(db_, ch_ ? commit_hook_impl : 0, &ch_);
+    sqlite3_commit_hook(db_, ch_ ? commit_hook_impl : nullptr, &ch_);
   }
 
   inline void database::set_rollback_handler(rollback_handler h)
   {
     rh_ = h;
-    sqlite3_rollback_hook(db_, rh_ ? rollback_hook_impl : 0, &rh_);
+    sqlite3_rollback_hook(db_, rh_ ? rollback_hook_impl : nullptr, &rh_);
   }
 
   inline void database::set_update_handler(update_handler h)
   {
     uh_ = h;
-    sqlite3_update_hook(db_, uh_ ? update_hook_impl : 0, &uh_);
+    sqlite3_update_hook(db_, uh_ ? update_hook_impl : nullptr, &uh_);
   }
 
   inline void database::set_authorize_handler(authorize_handler h)
   {
     ah_ = h;
-    sqlite3_set_authorizer(db_, ah_ ? authorizer_impl : 0, &ah_);
+    sqlite3_set_authorizer(db_, ah_ ? authorizer_impl : nullptr, &ah_);
+  }
+
+  inline void database::rebind_handlers()
+  {
+    if (db_) {
+      if (bh_) sqlite3_busy_handler(db_, busy_handler_impl, &bh_);
+      if (ch_) sqlite3_commit_hook(db_, commit_hook_impl, &ch_);
+      if (rh_) sqlite3_rollback_hook(db_, rollback_hook_impl, &rh_);
+      if (uh_) sqlite3_update_hook(db_, update_hook_impl, &uh_);
+      if (ah_) sqlite3_set_authorizer(db_, authorizer_impl, &ah_);
+    }
   }
 
   inline long long int database::last_insert_rowid() const
@@ -244,9 +264,14 @@ namespace sqlite3pp
   {
     va_list ap;
     va_start(ap, sql);
-    std::shared_ptr<char> msql(sqlite3_vmprintf(sql, ap), sqlite3_free);
+    char* raw_sql = sqlite3_vmprintf(sql, ap);
     va_end(ap);
 
+    if (!raw_sql) {
+      return SQLITE_NOMEM;
+    }
+
+    std::shared_ptr<char> msql(raw_sql, sqlite3_free);
     return execute(msql.get());
   }
 
@@ -256,7 +281,7 @@ namespace sqlite3pp
   }
 
 
-  inline statement::statement(database& db, char const* stmt) : db_(db), stmt_(0), tail_(0)
+  inline statement::statement(database& db, char const* stmt) : db_(db), stmt_(nullptr), tail_(nullptr)
   {
     if (stmt) {
       auto rc = prepare(stmt);
@@ -399,6 +424,12 @@ namespace sqlite3pp
     return bind(idx, value, fcopy);
   }
 
+  inline int statement::bind(char const* name, char16_t const* value, copy_semantic fcopy)
+  {
+    auto idx = sqlite3_bind_parameter_index(stmt_, name);
+    return bind(idx, value, fcopy);
+  }
+
   inline int statement::bind(char const* name)
   {
     auto idx = sqlite3_bind_parameter_index(stmt_, name);
@@ -444,11 +475,16 @@ namespace sqlite3pp
 
       if ((rc = prepare_impl(sql)) != SQLITE_OK) return rc;
 
-      if ((rc = sqlite3_transfer_bindings(old_stmt, stmt_)) != SQLITE_OK) return rc;
+      if (stmt_) {
+        // Best-effort transfer: allows mixing parameterized and non-parameterized statements.
+        sqlite3_transfer_bindings(old_stmt, stmt_);
 
-      finish_impl(old_stmt);
+        finish_impl(old_stmt);
 
-      if ((rc = execute()) != SQLITE_OK) return rc;
+        if ((rc = execute()) != SQLITE_OK) return rc;
+      } else {
+        finish_impl(old_stmt);
+      }
 
       sql = tail_;
     }
@@ -526,7 +562,7 @@ namespace sqlite3pp
     return getstream(this, idx);
   }
 
-  inline query::query_iterator::query_iterator() : cmd_(0)
+  inline query::query_iterator::query_iterator() : cmd_(nullptr)
   {
     rc_ = SQLITE_DONE;
   }

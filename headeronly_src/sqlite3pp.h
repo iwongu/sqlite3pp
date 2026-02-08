@@ -131,6 +131,7 @@ namespace sqlite3pp
 
    private:
     database(sqlite3* pdb) : db_(pdb), borrowing_(true) {}
+    void rebind_handlers();
 
    private:
     sqlite3* db_;
@@ -174,6 +175,7 @@ namespace sqlite3pp
     int bind(char const* name, char const* value, copy_semantic fcopy);
     int bind(char const* name, void const* value, int n, copy_semantic fcopy);
     int bind(char const* name, std::string const& value, copy_semantic fcopy);
+    int bind(char const* name, char16_t const* value, copy_semantic fcopy);
     int bind(char const* name);
     int bind(char const* name, null_type);
 
@@ -220,6 +222,14 @@ namespace sqlite3pp
         return *this;
       }
       bindstream& operator << (std::string const& value) {
+        auto rc = cmd_.bind(idx_, value, copy);
+        if (rc != SQLITE_OK) {
+          throw database_error(cmd_.db_);
+        }
+        ++idx_;
+        return *this;
+      }
+      bindstream& operator << (char16_t const* value) {
         auto rc = cmd_.bind(idx_, value, copy);
         if (rc != SQLITE_OK) {
           throw database_error(cmd_.db_);

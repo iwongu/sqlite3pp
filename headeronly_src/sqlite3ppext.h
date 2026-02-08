@@ -137,6 +137,23 @@ namespace sqlite3pp
       sqlite3_value** values_;
     };
 
+    template <class R>
+    struct Result {
+      template <class F, class T>
+      static void set(context& c, F f, T&& t) {
+        c.result(apply_f(f, std::forward<T>(t)));
+      }
+    };
+
+    template <>
+    struct Result<void> {
+      template <class F, class T>
+      static void set(context& c, F f, T&& t) {
+        apply_f(f, std::forward<T>(t));
+        c.result();
+      }
+    };
+
     namespace
     {
       template <class R, class... Ps>
@@ -144,7 +161,7 @@ namespace sqlite3pp
       {
         context c(ctx, nargs, values);
         auto f = static_cast<std::function<R (Ps...)>*>(sqlite3_user_data(ctx));
-        c.result(apply_f(*f, c.to_tuple<Ps...>()));
+        Result<R>::set(c, *f, c.to_tuple<Ps...>());
       }
     }
 
@@ -201,7 +218,7 @@ namespace sqlite3pp
       {
         context c(ctx);
         T* t = static_cast<T*>(c.aggregate_data(sizeof(T)));
-        c.result(t->finish());
+        Result<decltype(t->finish())>::set(c, [t]{return t->finish();}, std::tuple<>());
         t->~T();
       }
     }

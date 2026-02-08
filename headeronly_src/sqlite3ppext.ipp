@@ -100,7 +100,8 @@ namespace sqlite3pp
 
     inline std::string context::get(int idx, std::string) const
     {
-      return get(idx, (char const*)0);
+      char const* c = get(idx, (char const*)0);
+      return c ? std::string(c) : std::string();
     }
 
     inline void const* context::get(int idx, void const*) const
@@ -127,7 +128,7 @@ namespace sqlite3pp
 
     inline void context::result(std::string const& value)
     {
-      result(value.c_str(), false);
+      result(value.c_str(), true);
     }
 
     inline void context::result(char const* value, bool fcopy)

@@ -70,8 +70,8 @@ namespace sqlite3pp
       auto rc = connect(dbname, flags, vfs);
       if (rc != SQLITE_OK) {
         // Whether or not an error occurs when it is opened, resources
-	// associated with the database connection handle should be released
-	// by passing it to sqlite3_close() when it is no longer required.
+        // associated with the database connection handle should be released
+        // by passing it to sqlite3_close() when it is no longer required.
         disconnect();
         throw database_error("can't connect database");
       }

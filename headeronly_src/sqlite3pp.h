@@ -237,7 +237,7 @@ namespace sqlite3pp
         ++idx_;
         return *this;
       }
-      bindstream& operator << (std::nullptr_t value) {
+      bindstream& operator << (std::nullptr_t) {
         auto rc = cmd_.bind(idx_);
         if (rc != SQLITE_OK) {
           throw database_error(cmd_.db_);

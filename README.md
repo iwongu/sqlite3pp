@@ -8,7 +8,7 @@ This library makes SQLite3 API more friendly to C++ users. It supports almost al
 
 With ext::function class, it's also easy to use the sqlite3's functions and aggregations in C++.
 
-# Usage
+# Usage test
 
 ## database
 ```cpp
